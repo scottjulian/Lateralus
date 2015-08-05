@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Lateralus</string>
+    <string name="title_activity_main">Lateralus</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="key_for_token">lateralus.gcm.token</string>
+    <string name="key_for_email">lateralus.user.email</string>
+    <string name="key_for_device_id">lateralus.device.uuid</string>
+</resources>
