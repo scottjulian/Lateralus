@@ -1,5 +1,7 @@
 package net.scottjulian.lateralus;
 
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -19,6 +21,7 @@ import android.widget.EditText;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 
+import net.scottjulian.lateralus.fragments.FragmentSettings;
 import net.scottjulian.lateralus.gcm.RegistrationIntentService;
 
 import java.util.UUID;
@@ -62,7 +65,6 @@ public class MainActivity extends AppCompatActivity {
                 boolean sentToken = _prefs.getBoolean(RegistrationIntentService.SENT_TOKEN_TO_SERVER, false);
                 if (sentToken){
                     Log.d(TAG, "SEND");
-                    setContentView(R.layout.activity_main);
                 }
                 else {
                     Log.d(TAG, "ERRR");
@@ -70,34 +72,7 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-        String email = _prefs.getString(getString(R.string.key_for_email), null);
-        if(email == null){
-            setContentView(R.layout.activity_main_register);
-            findViewById(R.id.button_register).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    register();
-                }
-            });
-        }
-        else{
-            setContentView(R.layout.activity_main);
-        }
-
-        /*
-        LocationReader lr = new LocationReader(MainActivity.this, new LocDelegate() {
-            @Override
-            public void onLocationReceived(Location loc) {
-                // nothing
-            }
-
-            @Override
-            public void onErrorRecevied() {
-                // nothing
-            }
-        });
-        lr.startTracking(true);
-        */
+        setContentView(R.layout.activity_main);
     }
 
     private void saveUniqueDeviceId() {
@@ -132,40 +107,30 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if(id == R.id.action_settings) {
+            loadSettingsFragment();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
-    private void register() {
-        EditText emailText = (EditText) findViewById(R.id.edit_email);
-        String email = emailText.getText().toString();
-        if(email == "" || email == null || email.isEmpty()){
-            return;
+    @Override
+    public void onBackPressed() {
+        if(getFragmentManager().getBackStackEntryCount() != 0) {
+            getFragmentManager().popBackStack();
         }
-        SharedPreferences.Editor edit = _prefs.edit();
-        edit.putString(getString(R.string.key_for_email), email);
-        edit.commit();
-
-        if(checkPlayServices()){
-            Intent intent = new Intent(this, RegistrationIntentService.class);
-            startService(intent);
+        else {
+            super.onBackPressed();
         }
     }
 
-    private boolean checkPlayServices() {
-        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
-        if (resultCode != ConnectionResult.SUCCESS) {
-            if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
-                GooglePlayServicesUtil.getErrorDialog(resultCode, this, 9000).show();
-            }
-            else {
-                Log.i(TAG, "This device is not supported.");
-                finish();
-            }
-            return false;
-        }
-        return true;
+    private void loadSettingsFragment(){
+        FragmentSettings fragment = new FragmentSettings();
+        FragmentManager fragmentManager = getFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.activity_main_container, fragment);
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
     }
+
 }

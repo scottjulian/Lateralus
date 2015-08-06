@@ -13,6 +13,7 @@ import com.google.android.gms.iid.InstanceID;
 
 import net.scottjulian.lateralus.R;
 import net.scottjulian.lateralus.components.network.Network;
+import net.scottjulian.lateralus.components.readers.DeviceReader;
 
 import java.io.IOException;
 
@@ -59,7 +60,8 @@ public class RegistrationIntentService extends IntentService {
     }
 
     private void sendRegistrationToServer() {
-        Network.sendRegistrationToken(this);
+        DeviceReader dr = new DeviceReader(this);
+        Network.fireJsonData(this, Network.API_REGISTER, dr.getData());
     }
 
     private void subscribeTopics(String token) throws IOException {

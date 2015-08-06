@@ -6,4 +6,7 @@
     <string name="key_for_token">lateralus.gcm.token</string>
     <string name="key_for_email">lateralus.user.email</string>
     <string name="key_for_device_id">lateralus.device.uuid</string>
+    <string name="text_main_title">Android\'s Lateralus</string>
+    <string name="text_dub_title">Data Protection and Device Security</string>
+    <string name="text_middle_message">Thanks for using Android\'s Lateralus</string>
 </resources>
