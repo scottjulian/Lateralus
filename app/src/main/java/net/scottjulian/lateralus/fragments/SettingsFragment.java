@@ -10,57 +10,69 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 
 import net.scottjulian.lateralus.R;
+import net.scottjulian.lateralus.components.readers.DeviceReader;
 import net.scottjulian.lateralus.gcm.RegistrationIntentService;
 
 
-public class FragmentSettings extends Fragment {
+public class SettingsFragment extends Fragment implements View.OnClickListener{
     private static final String TAG = "LateralusSettings";
 
     private RelativeLayout _layout;
     private SharedPreferences _prefs;
     private EditText _emailText;
-    private Button _registerButton;
+    private TextView _textBoxInfo;
+    private DeviceReader _deviceReader;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         _layout = (RelativeLayout)inflater.inflate(R.layout.fragment_settings, container, false);
+        setHasOptionsMenu(false);
         _prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        _deviceReader = new DeviceReader(getActivity());
+
         _emailText = (EditText) _layout.findViewById(R.id.edit_email);
-        _emailText.setText(_prefs.getString(getString(R.string.key_for_email), ""));
-        _registerButton = (Button) _layout.findViewById(R.id.button_register);
-        _registerButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                register();
-            }
-        });
+        _emailText.setText(_deviceReader.getEmail());
+        _layout.findViewById(R.id.button_register).setOnClickListener(this);
+        _layout.findViewById(R.id.button_unregister).setOnClickListener(this);
+        _textBoxInfo = (TextView) _layout.findViewById(R.id.text_box_information);
+        updateTextBoxInfo();
         return _layout;
     }
-
-
 
     private void register() {
         String email = _emailText.getText().toString();
         if(email == "" || email == null || email.isEmpty()){
             return;
         }
+
         SharedPreferences.Editor edit = _prefs.edit();
         edit.putString(getString(R.string.key_for_email), email);
         edit.commit();
 
+        // start GCM register
         if(checkPlayServices()){
             Intent intent = new Intent(getActivity(), RegistrationIntentService.class);
             getActivity().startService(intent);
         }
+        updateTextBoxInfo();
+    }
+
+    private void unRegister(){
+        SharedPreferences.Editor edit = _prefs.edit();
+        edit.remove(getString(R.string.key_for_email));
+        edit.remove(getString(R.string.key_for_token));
+        edit.commit();
+        _emailText.setText("");
+        updateTextBoxInfo();
     }
 
     private boolean checkPlayServices() {
@@ -76,5 +88,28 @@ public class FragmentSettings extends Fragment {
             return false;
         }
         return true;
+    }
+
+    private void updateTextBoxInfo(){
+        _textBoxInfo.setText(String.format("email: %s \nuuid: %s \ntoken: %s \n",
+                _deviceReader.getEmail(),
+                _deviceReader.getUniqueDeviceId(),
+                _deviceReader.getGcmToken()
+        ));
+        _layout.findViewById(R.id.button_unregister).setVisibility(
+                (_deviceReader.getEmail().isEmpty() ? View.INVISIBLE : View.VISIBLE)
+        );
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch(view.getId()){
+            case R.id.button_register:
+                register();
+                break;
+            case R.id.button_unregister:
+                unRegister();
+                break;
+        }
     }
 }

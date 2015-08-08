@@ -11,20 +11,17 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
-import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.EditText;
+import android.widget.Button;
+import android.widget.TextView;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
-
-import net.scottjulian.lateralus.fragments.FragmentSettings;
+import net.scottjulian.lateralus.components.DeviceController;
+import net.scottjulian.lateralus.components.readers.DeviceReader;
+import net.scottjulian.lateralus.fragments.SettingsFragment;
 import net.scottjulian.lateralus.gcm.RegistrationIntentService;
-
-import java.util.UUID;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -33,6 +30,9 @@ public class MainActivity extends AppCompatActivity {
 
     private BroadcastReceiver _registrationBroadcastReceiver;
     private SharedPreferences _prefs;
+    private TextView _textSecureStatus;
+    private Button _btnMakeSecure;
+    private DeviceReader _deviceReader;
 
     // GCM SERVER API KEY
     // AIzaSyB3wb7sIYgvg2YB_u3f2oqRtsQuNJFKWbc
@@ -56,9 +56,26 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        _prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        saveUniqueDeviceId();
+        setContentView(R.layout.activity_main);
 
+        _prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        _textSecureStatus = (TextView) findViewById(R.id.text_view_secure_status);
+        _btnMakeSecure = (Button) findViewById(R.id.button_make_secure);
+        _btnMakeSecure.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                loadSettingsFragment();
+            }
+        });
+
+        _deviceReader = new DeviceReader(this);
+
+        setBroadcastReceiver();
+        checkRegistrationStatus();
+
+    }
+
+    private void setBroadcastReceiver(){
         _registrationBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -71,52 +88,45 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         };
-
-        setContentView(R.layout.activity_main);
     }
 
-    private void saveUniqueDeviceId() {
-        String did = _prefs.getString(getString(R.string.key_for_device_id), null);
-        if(did == null) {
-            final TelephonyManager tm = (TelephonyManager) getBaseContext().getSystemService(Context.TELEPHONY_SERVICE);
-            final String tmDevice, tmSerial, androidId;
-            tmDevice = "" + tm.getDeviceId();
-            tmSerial = "" + tm.getSimSerialNumber();
-            androidId = "" + android.provider.Settings.Secure.getString(getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
-            UUID deviceUuid = new UUID(androidId.hashCode(), ((long) tmDevice.hashCode() << 32) | tmSerial.hashCode());
-            String deviceId = deviceUuid.toString();
-            SharedPreferences.Editor edit = _prefs.edit();
-            edit.putString(getString(R.string.key_for_device_id), deviceId);
-            edit.commit();
+    public void checkRegistrationStatus(){
+        String email = _deviceReader.getEmail();
+        String token = _deviceReader.getGcmToken();
+        if(email.isEmpty() || token.isEmpty()){
+            // not secure
+            _textSecureStatus.setText("NOT SECURE");
+            _textSecureStatus.setTextColor(getResources().getColor(R.color.lateralus_red));
+            _btnMakeSecure.setVisibility(View.VISIBLE);
+        }
+        else{
+            // secure
+            _textSecureStatus.setText("SECURE");
+            _textSecureStatus.setTextColor(getResources().getColor(R.color.lateralus_green));
+            _btnMakeSecure.setVisibility(View.INVISIBLE);
         }
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if(id == R.id.action_settings) {
-            loadSettingsFragment();
+        if(item.getItemId() == R.id.action_settings) {
+            //loadSettingsFragment();
+            DeviceController.hideAppInDrawer(this);
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
     @Override
     public void onBackPressed() {
         if(getFragmentManager().getBackStackEntryCount() != 0) {
+            checkRegistrationStatus();
             getFragmentManager().popBackStack();
         }
         else {
@@ -125,7 +135,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loadSettingsFragment(){
-        FragmentSettings fragment = new FragmentSettings();
+        _btnMakeSecure.setVisibility(View.INVISIBLE);
+        SettingsFragment fragment = new SettingsFragment();
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.activity_main_container, fragment);

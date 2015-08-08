@@ -1,18 +1,19 @@
 package net.scottjulian.lateralus.components.location;
 
-import android.app.Activity;
 import android.content.Context;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.os.Bundle;
-import android.widget.TextView;
+import android.util.Log;
 
-import net.scottjulian.lateralus.R;
+import org.json.JSONObject;
 
 
 public class LocationReader {
+    private static final String TAG = "LocationReader";
+    private static final String ROOT_KEY = "location";
 
     private Context _ctx;
     private LocationManager _locManager;
@@ -20,9 +21,9 @@ public class LocationReader {
     private Location _currentBestLocation;
     private LocDelegate _delegate;
 
-    private static final int   MAX_DELTA_TIME    = 1000 * 60 * 2; // 2 min
-    private static final long  MIN_UPDATE_TIME   = 1000 * 30; // 30 secs
-    private static final float MIN_UPDATE_METERS = 5.0f; // 5 meters
+    private static final int   MAX_DELTA_TIME    = 1000 * 60 * 2; // mins
+    private static final long  MIN_UPDATE_TIME   = 1000 * 15; // secs
+    private static final float MIN_UPDATE_METERS = 3.0f; // meters
 
     public LocationReader(Context ctx, LocDelegate delegate){
         _ctx = ctx;
@@ -31,23 +32,46 @@ public class LocationReader {
         _delegate = delegate;
     }
 
+    /* -------- Delegate -------- */
+
+    private void sendLocation(Location loc){
+        _delegate.onLocationReceived(loc);
+    }
+
+    private void sendError(String msg){
+        _delegate.onErrorReceived(msg);
+    }
+
+    private void sendMessage(String msg){
+        _delegate.onMessageReceived(msg);
+    }
+
+    /* -------- Public -------- */
+
     public void startTracking(Boolean gps){
         if(gps){
             if(isGPSEnabled()) {
                 attachLocListener(LocationManager.GPS_PROVIDER);
             }
             else{
-                //TODO send no gps message
+                sendMessage("GPS is not enabled");
                 attachLocListener(LocationManager.NETWORK_PROVIDER);
             }
         }
         else{
             attachLocListener(LocationManager.NETWORK_PROVIDER);
         }
+        sendMessage("Start Tracking message received");
     }
 
     public void requestSingleLocationUpdate(Boolean gps){
-        _locManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, _listener, null);
+        sendMessage("Get single location message received");
+        if(gps && isGPSEnabled()) {
+            _locManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, _listener, null);
+        }
+        else{
+            _locManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, _listener, null);
+        }
     }
 
     public Location getLastLocation(){
@@ -57,21 +81,38 @@ public class LocationReader {
         return _locManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
     }
 
-    public void stop(){
+    public void stopTracking(){
         detachLocListener();
+        sendMessage("Stop Tracking message received");
     }
 
     public Boolean isGPSEnabled(){
         return _locManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
     }
 
-    private void sendLocation(Location loc){
-        _delegate.onLocationReceived(loc);
+    public static JSONObject getJsonFromLocation(Location loc){
+        try{
+            JSONObject data = new JSONObject();
+            data.put("latitude", loc.getLatitude());
+            data.put("longitude", loc.getLongitude());
+            data.put("accuracy", loc.getAccuracy());
+            data.put("altitude", loc.getAltitude());
+            data.put("provider", loc.getProvider());
+            data.put("speed", loc.getSpeed());
+            return new JSONObject().put(ROOT_KEY, data);
+        }
+        catch(Exception e){
+            Log.e(TAG, "Could not create json from location");
+            e.printStackTrace();
+        }
+        return null;
     }
 
-    private void sendError(){
-        _delegate.onErrorRecevied();
+    public static String getRootKey(){
+        return ROOT_KEY;
     }
+
+    /* -------- Private -------- */
 
     private void switchGpsToNetwork(){
         detachLocListener();
@@ -100,8 +141,7 @@ public class LocationReader {
         boolean isMoreAccurate = accuracyDelta < 0;
         boolean isSignificantlyLessAccurate = accuracyDelta > 200;
 
-        boolean isFromSameProvider = isSameProvider(location.getProvider(),
-                currentBestLocation.getProvider());
+        boolean isFromSameProvider = isSameProvider(location.getProvider(), currentBestLocation.getProvider());
 
         if (isMoreAccurate) {
             return true;
@@ -116,10 +156,7 @@ public class LocationReader {
     }
 
     private boolean isSameProvider(String provider1, String provider2) {
-        if (provider1 == null) {
-            return provider2 == null;
-        }
-        return provider1.equals(provider2);
+        return (provider1 == null) ? provider2 == null : provider1.equals(provider2);
     }
 
     private void detachLocListener(){
@@ -133,7 +170,12 @@ public class LocationReader {
         else if(provider.equals(LocationManager.NETWORK_PROVIDER)){
             _locManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_UPDATE_TIME, MIN_UPDATE_METERS, _listener);
         }
+        else{
+            sendError("Could not attach location listener. No provider is available");
+        }
     }
+
+    /* -------- Listener -------- */
 
     private class LocListener implements LocationListener{
 
@@ -148,8 +190,8 @@ public class LocationReader {
         @Override
         public void onStatusChanged(String provider, int status, Bundle bundle) {
             if(status == LocationProvider.OUT_OF_SERVICE || status == LocationProvider.TEMPORARILY_UNAVAILABLE){
-                stop();
-                sendError();
+                stopTracking();
+                sendError("status changed to 'out of service' or is unavailable");
             }
         }
 

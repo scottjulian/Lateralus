@@ -9,4 +9,6 @@
     <string name="text_main_title">Android\'s Lateralus</string>
     <string name="text_dub_title">Data Protection and Device Security</string>
     <string name="text_middle_message">Thanks for using Android\'s Lateralus</string>
+    <string name="text_secure_status_default">NOT SECURE</string>
+    <string name="text_status_label">current status:</string>
 </resources>

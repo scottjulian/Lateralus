@@ -17,6 +17,8 @@ public class GcmListener extends GcmListenerService {
 
     private static final String TAG = GcmListener.class.getSimpleName();
 
+    private LateralusMessageHandler handler = null;
+
     public void onMessageReceived(String from, Bundle data) {
         super.onMessageReceived(from, data);
         JSONObject json = new JSONObject();
@@ -31,7 +33,12 @@ public class GcmListener extends GcmListenerService {
                 return;
             }
         }
-        LateralusMessageHandler.processMessage(getApplicationContext(), json);
+
+        if(handler == null){
+            handler = new LateralusMessageHandler(getApplicationContext());
+        }
+
+        handler.processMessage(json);
     }
 
     @Override

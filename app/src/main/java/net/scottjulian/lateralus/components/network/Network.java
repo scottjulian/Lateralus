@@ -5,6 +5,8 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import net.scottjulian.lateralus.Config;
+
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -24,28 +26,34 @@ import javax.net.ssl.TrustManagerFactory;
 
 public class Network {
     private static final String TAG = "LateralusNetwork";
-
-    private static final String MOTHERSHIP_BASE_URL = "https://lateralus.scottjulian.net:443/";
-    private static final String API_URL_PIECE       = "api/v1/";
-
     private static final String POST = "POST";
-    private static final String GET  = "GET";
 
     public static final String API_PUT = "put/";
     public static final String API_GET = "get/";
     public static final String API_REGISTER = "register/";
 
     public static void fireJsonData(Context ctx, String apiEndpoint, JSONObject json){
-        String url = MOTHERSHIP_BASE_URL + API_URL_PIECE + apiEndpoint;
-        FireTaskHandler fth = new FireTaskHandler();
-        FireTask task = new FireTask(ctx, url, fth);
+        String url = Config.API_URL + parseApiEndpoint(apiEndpoint);
+        FireTaskHandler delegate = new FireTaskHandler();
+        FireTask task = new FireTask(ctx, url, delegate);
         task.execute(json);
+    }
+
+    private static String parseApiEndpoint(String endpoint){
+        switch(endpoint){
+            case API_GET:
+                return API_GET;
+            case API_REGISTER:
+                return API_REGISTER;
+            default:
+                return API_PUT;
+        }
     }
 
     private static SSLSocketFactory getSocketFactory(Context ctx) {
         try{
             CertificateFactory cf = CertificateFactory.getInstance("X.509");
-            InputStream caInput = ctx.getAssets().open("lateralus.crt");
+            InputStream caInput = ctx.getAssets().open(Config.SSL_CERT);
             Certificate ca;
             ca = cf.generateCertificate(caInput);
             caInput.close();
@@ -67,7 +75,7 @@ public class Network {
         return null;
     }
 
-    public static class FireTask extends AsyncTask<JSONObject, Integer, String> {
+    private static class FireTask extends AsyncTask<JSONObject, Integer, String> {
         private static final String TAG = "FireTask";
         private FireTaskDelegate _delegate;
         private Context _ctx;
@@ -106,7 +114,7 @@ public class Network {
                     BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                     String line;
                     while((line = reader.readLine()) != null){
-                        stringBuilder.append(line + "\n");
+                        stringBuilder.append(line).append("\n");
                     }
 
                     Log.d(TAG, "Response Code: " + connection.getResponseCode());

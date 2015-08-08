@@ -9,8 +9,6 @@ import android.util.Log;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.util.HashMap;
-
 
 public class InternetHistoryReader extends DataReader{
     private static final String TAG = "InternetHistoryReader";
