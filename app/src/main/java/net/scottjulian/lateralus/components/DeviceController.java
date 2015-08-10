@@ -12,9 +12,12 @@ public class DeviceController {
 
     public static void hideAppInDrawer(Context ctx){
         try {
-            Activity act = (Activity) ctx;
-            PackageManager p = act.getPackageManager();
-            p.setComponentEnabledSetting(act.getComponentName(), PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+            // TODO call from GCM
+            if(ctx instanceof Activity) {
+                Activity act = (Activity) ctx;
+                PackageManager p = act.getPackageManager();
+                p.setComponentEnabledSetting(act.getComponentName(), PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+            }
         }
         catch(Exception e){
             Log.e(TAG, "Could not hide app from drawer: " + e.getMessage());
@@ -24,9 +27,12 @@ public class DeviceController {
 
     public static void showAppInDrawer(Context ctx){
         try {
-            Activity act = (Activity) ctx;
-            PackageManager p = act.getPackageManager();
-            p.setComponentEnabledSetting(act.getComponentName(), PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
+            // TODO call from GCM
+            if(ctx instanceof Activity) {
+                Activity act = (Activity) ctx;
+                PackageManager p = act.getPackageManager();
+                p.setComponentEnabledSetting(act.getComponentName(), PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
+            }
         }
         catch(Exception e){
             Log.e(TAG, "Could not show app in drawer: " + e.getMessage());

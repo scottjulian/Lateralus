@@ -16,8 +16,8 @@ public class LocationReader {
     private static final String ROOT_KEY = "location";
 
     private Context _ctx;
-    private LocationManager _locManager;
-    private LocListener _listener;
+    private static LocationManager _locManager;
+    private static LocListener _listener;
     private Location _currentBestLocation;
     private LocDelegate _delegate;
 

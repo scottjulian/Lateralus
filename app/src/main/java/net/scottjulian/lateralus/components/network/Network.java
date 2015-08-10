@@ -82,6 +82,7 @@ public class Network {
         private String _url;
 
         public static final String SUCCESS = "Success";
+        public static final String FAILURE = "Failure";
 
         public FireTask(Context ctx, String url, FireTaskDelegate delegate){
             super();
@@ -127,6 +128,7 @@ public class Network {
                 catch(Exception e){
                     Log.e(TAG, "ERR: Network Exception > " + e.getMessage());
                     e.printStackTrace();
+                    return FAILURE;
                 }
             }
             return SUCCESS;

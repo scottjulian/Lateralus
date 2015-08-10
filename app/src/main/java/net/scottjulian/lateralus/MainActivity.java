@@ -116,7 +116,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if(item.getItemId() == R.id.action_settings) {
-            //loadSettingsFragment();
+            loadSettingsFragment();
+            return true;
+        }
+        else if(item.getItemId() == R.id.action_hide_app) {
             DeviceController.hideAppInDrawer(this);
             return true;
         }

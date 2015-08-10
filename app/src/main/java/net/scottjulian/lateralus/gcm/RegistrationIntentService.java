@@ -15,6 +15,8 @@ import net.scottjulian.lateralus.R;
 import net.scottjulian.lateralus.components.network.Network;
 import net.scottjulian.lateralus.components.readers.DeviceReader;
 
+import org.json.JSONObject;
+
 import java.io.IOException;
 
 public class RegistrationIntentService extends IntentService {
@@ -61,7 +63,13 @@ public class RegistrationIntentService extends IntentService {
 
     private void sendRegistrationToServer() {
         DeviceReader dr = new DeviceReader(this);
-        Network.fireJsonData(this, Network.API_REGISTER, dr.getData());
+        try {
+            Network.fireJsonData(this, Network.API_REGISTER, new JSONObject().put("json", dr.getData()));
+        }
+        catch(Exception e){
+            Log.d(TAG, "could not create registration json");
+            e.printStackTrace();
+        }
     }
 
     private void subscribeTopics(String token) throws IOException {
