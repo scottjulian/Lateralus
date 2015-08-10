@@ -11,7 +11,7 @@ import android.util.Log;
 import net.scottjulian.lateralus.components.io.FileSystem;
 
 
-public class CameraReader{
+public class PhotoTaker {
 
     private static final String LOG = "LateralusCamera";
     private static final String SAVE_PATH = Environment.getExternalStorageDirectory().toString() + "/tmp/";
@@ -26,14 +26,14 @@ public class CameraReader{
     private Boolean _hasFrontCam = false;
     private Boolean _hasBackCam  = false;
 
-    public CameraReader(Context ctx){
+    public PhotoTaker(Context ctx){
         Log.d(LOG, "New CameraReader");
         _ctx = ctx;
         _hasBackCam = (_ctx.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA));
         _hasFrontCam = (_ctx.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FRONT));
     }
 
-    public void takePicture(String whichCam){
+    public void takePhoto(String whichCam){
         whichCam = (whichCam.equals(FRONT)) ? FRONT : BACK;
         Log.d(LOG, "Starting to take picture with: " + whichCam);
         if(openCamera(whichCam)){

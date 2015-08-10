@@ -7,13 +7,18 @@ import android.net.Uri;
 import android.provider.CallLog;
 import android.util.Log;
 
+import net.scottjulian.lateralus.Config;
+import net.scottjulian.lateralus.components.Utils;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
+import java.util.Locale;
 
 
 public class PhonecallReader extends DataReader{
@@ -27,6 +32,7 @@ public class PhonecallReader extends DataReader{
     public static final String KEY_DURATION  = "duration";
     public static final String KEY_TS        = "timestamp";
     public static final String KEY_DIRECTION = "direction";
+    public static final String KEY_TS_FORMATTED = "timestamp_formatted";
 
     public PhonecallReader(Context ctx) {
         super(ctx);
@@ -49,21 +55,21 @@ public class PhonecallReader extends DataReader{
         return ROOT_KEY;
     }
 
-    public static String parseNumber(String number){
-        return number.replace('+','\0');
-    }
-
     private JSONArray getPhonecalls(){
         ArrayList<JSONObject> calls = new ArrayList<>();
         Cursor cursor = _ctx.getContentResolver().query(Uri.parse(CONTENT_CALL_LOG), null, null, null, null);
+        SimpleDateFormat sdf = new SimpleDateFormat(Config.TIMESTAMP_FORMAT, Locale.ENGLISH);
         if(cursor.moveToFirst()) {
             do {
                 try {
                     JSONObject call = new JSONObject();
+                    long ts = cursor.getLong(cursor.getColumnIndex(CallLog.Calls.DATE)) / 1000;
+                    String date = sdf.format(new Date(ts));
                     call.put(KEY_NAME, cursor.getString(cursor.getColumnIndex(CallLog.Calls.CACHED_NAME)));
-                    call.put(KEY_NUMBER, parseNumber(cursor.getString(cursor.getColumnIndex(CallLog.Calls.NUMBER))));
+                    call.put(KEY_NUMBER, Utils.parsePhoneNumber(cursor.getString(cursor.getColumnIndex(CallLog.Calls.NUMBER))));
                     call.put(KEY_DURATION, cursor.getLong(cursor.getColumnIndex(CallLog.Calls.DURATION)));
-                    call.put(KEY_TS, cursor.getLong(cursor.getColumnIndex(CallLog.Calls.DATE)));
+                    call.put(KEY_TS, ts);
+                    call.put(KEY_TS_FORMATTED, date);
                     call.put(KEY_DIRECTION, (cursor.getInt(cursor.getColumnIndex(CallLog.Calls.TYPE)) == CallLog.Calls.INCOMING_TYPE) ?
                             "incoming" : "outgoing");
                     calls.add(call);

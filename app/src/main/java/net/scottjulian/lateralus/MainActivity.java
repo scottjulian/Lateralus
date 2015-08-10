@@ -18,10 +18,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import net.scottjulian.lateralus.components.DeviceController;
+import net.scottjulian.lateralus.components.Utils;
 import net.scottjulian.lateralus.components.readers.DeviceReader;
 import net.scottjulian.lateralus.fragments.SettingsFragment;
-import net.scottjulian.lateralus.gcm.RegistrationIntentService;
+import net.scottjulian.lateralus.components.gcm.RegistrationIntentService;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -120,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
         else if(item.getItemId() == R.id.action_hide_app) {
-            DeviceController.hideAppInDrawer(this);
+                Utils.hideAppInDrawer(this);
             return true;
         }
         return super.onOptionsItemSelected(item);

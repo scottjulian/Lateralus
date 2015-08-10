@@ -1,11 +1,11 @@
-package net.scottjulian.lateralus.gcm;
+package net.scottjulian.lateralus.components.gcm;
 
 import android.os.Bundle;
 import android.util.Log;
 
 import com.google.android.gms.gcm.GcmListenerService;
 
-import net.scottjulian.lateralus.LateralusMessageHandler;
+import net.scottjulian.lateralus.components.LateralusMessageHandler;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -30,9 +30,12 @@ public class GcmListener extends GcmListenerService {
             catch(JSONException e) {
                 Log.e(TAG, "Could not create json object");
                 e.printStackTrace();
+                // TODO: send error message to server
                 return;
             }
         }
+        // TODO: send received messsage to server
+
 
         if(handler == null){
             handler = new LateralusMessageHandler(getApplicationContext());

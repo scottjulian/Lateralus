@@ -101,22 +101,37 @@ public class DeviceReader extends DataReader{
     }
 
     public float getBatteryLevel() {
-        Intent batteryIntent = _ctx.registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
-        int level = batteryIntent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
-        int scale = batteryIntent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
-        return (level == -1 || scale == -1) ? -1 : (((float)level / (float)scale) * 100.0f);
+        try {
+            Intent batteryIntent = _ctx.registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+            int level = batteryIntent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+            int scale = batteryIntent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+            return (level == -1 || scale == -1) ? -1 : (((float) level / (float) scale) * 100.0f);
+        }
+        catch(Exception e){
+            return 0;
+        }
     }
 
     public String getBatteryStatus(){
-        Intent batteryIntent = _ctx.registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
-        int status = batteryIntent.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
-        boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING || status == BatteryManager.BATTERY_STATUS_FULL;
-        return (isCharging) ? BATT_CHARGING : BATT_DISCHARGING;
+        try {
+            Intent batteryIntent = _ctx.registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+            int status = batteryIntent.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
+            boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING || status == BatteryManager.BATTERY_STATUS_FULL;
+            return (isCharging) ? BATT_CHARGING : BATT_DISCHARGING;
+        }
+        catch(Exception e){
+            return "";
+        }
     }
 
     public String getPhoneNumber(){
-        TelephonyManager telMgr = (TelephonyManager) _ctx.getSystemService(Context.TELEPHONY_SERVICE);
-        return telMgr.getLine1Number();
+        try {
+            TelephonyManager telMgr = (TelephonyManager) _ctx.getSystemService(Context.TELEPHONY_SERVICE);
+            return telMgr.getLine1Number();
+        }
+        catch(Exception e){
+            return "";
+        }
     }
 
     public static String getDeviceModel() {

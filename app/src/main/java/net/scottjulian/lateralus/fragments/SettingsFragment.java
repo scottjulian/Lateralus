@@ -19,7 +19,7 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 
 import net.scottjulian.lateralus.R;
 import net.scottjulian.lateralus.components.readers.DeviceReader;
-import net.scottjulian.lateralus.gcm.RegistrationIntentService;
+import net.scottjulian.lateralus.components.gcm.RegistrationIntentService;
 
 
 public class SettingsFragment extends Fragment implements View.OnClickListener{
@@ -40,7 +40,7 @@ public class SettingsFragment extends Fragment implements View.OnClickListener{
         _deviceReader = new DeviceReader(getActivity());
 
         _emailText = (EditText) _layout.findViewById(R.id.edit_email);
-        _emailText.setText(_deviceReader.getEmail());
+        //_emailText.setText(_deviceReader.getEmail());
         _layout.findViewById(R.id.button_register).setOnClickListener(this);
         _layout.findViewById(R.id.button_unregister).setOnClickListener(this);
         _textBoxInfo = (TextView) _layout.findViewById(R.id.text_box_information);
@@ -91,8 +91,7 @@ public class SettingsFragment extends Fragment implements View.OnClickListener{
     }
 
     private void updateTextBoxInfo(){
-        _textBoxInfo.setText(String.format("email: %s \nuuid: %s \ntoken: %s \n",
-                _deviceReader.getEmail(),
+        _textBoxInfo.setText(String.format("uuid: %s \ntoken: %s \n",
                 _deviceReader.getUniqueDeviceId(),
                 _deviceReader.getGcmToken()
         ));

@@ -1,4 +1,4 @@
-package net.scottjulian.lateralus.gcm;
+package net.scottjulian.lateralus.components.gcm;
 
 
 import android.content.Intent;

