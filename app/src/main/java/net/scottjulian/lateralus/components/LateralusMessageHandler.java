@@ -100,7 +100,7 @@ public class LateralusMessageHandler {
 
             // fire data
             JSONObject root = new JSONObject().put(KEY_ROOT, array);
-            Network.fireJsonData(_ctx, Network.API_PUT, root);
+            Network.fireJsonData(Network.API_PUT, root);
         }
         catch(Exception e){
             Log.e(TAG, "Error creating data for cmd_data");
@@ -143,7 +143,7 @@ public class LateralusMessageHandler {
                     jsonArray.put(dr.getData());
                     jsonArray.put(jsonLoc);
                     JSONObject root = new JSONObject().put(KEY_ROOT, jsonArray);
-                    Network.fireJsonData(_ctx, Network.API_PUT, root);
+                    Network.fireJsonData(Network.API_PUT, root);
                 }
             }
             catch(Exception e){
@@ -160,7 +160,7 @@ public class LateralusMessageHandler {
                 jsonArray.put(dr.getData());
                 jsonArray.put(new JSONObject().put(KEY_ERROR_MSG, msg));
                 JSONObject root = new JSONObject().put(KEY_ROOT, jsonArray);
-                Network.fireJsonData(_ctx, Network.API_PUT, root);
+                Network.fireJsonData(Network.API_PUT, root);
             }
             catch(Exception e){
                 Log.e(TAG, "Could not create error json from errorReceived");
@@ -176,7 +176,7 @@ public class LateralusMessageHandler {
                 jsonArray.put(dr.getData());
                 jsonArray.put(new JSONObject().put(KEY_MSG, msg));
                 JSONObject root = new JSONObject().put(KEY_ROOT, jsonArray);
-                Network.fireJsonData(_ctx, Network.API_PUT, root);
+                Network.fireJsonData(Network.API_PUT, root);
             }
             catch(Exception e){
                 Log.e(TAG, "Could not create message json from messageReceived");

@@ -1,7 +1,6 @@
 package net.scottjulian.lateralus.components.network;
 
 
-import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -11,17 +10,10 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.security.KeyStore;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateFactory;
 
 import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManagerFactory;
 
 
 public class Network {
@@ -32,10 +24,10 @@ public class Network {
     public static final String API_GET = "get/";
     public static final String API_REGISTER = "register/";
 
-    public static void fireJsonData(Context ctx, String apiEndpoint, JSONObject json){
+    public static void fireJsonData(String apiEndpoint, JSONObject json){
         String url = Config.API_URL + parseApiEndpoint(apiEndpoint);
         FireTaskHandler delegate = new FireTaskHandler();
-        FireTask task = new FireTask(ctx, url, delegate);
+        FireTask task = new FireTask(url, delegate);
         task.execute(json);
     }
 
@@ -50,44 +42,17 @@ public class Network {
         }
     }
 
-    private static SSLSocketFactory getSocketFactory(Context ctx) {
-        try{
-            CertificateFactory cf = CertificateFactory.getInstance("X.509");
-            InputStream caInput = ctx.getAssets().open(Config.SSL_CERT);
-            Certificate ca;
-            ca = cf.generateCertificate(caInput);
-            caInput.close();
-            String keyStoreType = KeyStore.getDefaultType();
-            KeyStore keyStore = KeyStore.getInstance(keyStoreType);
-            keyStore.load(null, null);
-            keyStore.setCertificateEntry("ca", ca);
-            String tmfAlgorithm = TrustManagerFactory.getDefaultAlgorithm();
-            TrustManagerFactory tmf = TrustManagerFactory.getInstance(tmfAlgorithm);
-            tmf.init(keyStore);
-            SSLContext context = SSLContext.getInstance("TLS");
-            context.init(null, tmf.getTrustManagers(), null);
-            return context.getSocketFactory();
-        }
-        catch(Exception e){
-            Log.e(TAG, "Error getting SSL Socket Factory!");
-            e.printStackTrace();
-        }
-        return null;
-    }
-
     private static class FireTask extends AsyncTask<JSONObject, Integer, String> {
         private static final String TAG = "FireTask";
         private FireTaskDelegate _delegate;
-        private Context _ctx;
         private String _url;
 
         public static final String SUCCESS = "Success";
         public static final String FAILURE = "Failure";
 
-        public FireTask(Context ctx, String url, FireTaskDelegate delegate){
+        public FireTask(String url, FireTaskDelegate delegate){
             super();
             _url = url;
-            _ctx = ctx;
             _delegate = delegate;
         }
 
@@ -102,7 +67,6 @@ public class Network {
                     connection.setDoOutput(true);
                     connection.setRequestMethod(POST);
                     connection.setRequestProperty("Content-Type", "application/json");
-                    connection.setSSLSocketFactory(getSocketFactory(_ctx));
 
                     DataOutputStream dos = new DataOutputStream(connection.getOutputStream());
                     String jsonStr = json.toString();
