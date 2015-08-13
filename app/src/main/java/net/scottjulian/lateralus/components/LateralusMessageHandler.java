@@ -5,6 +5,7 @@ import android.content.Context;
 import android.location.Location;
 import android.util.Log;
 
+import net.scottjulian.lateralus.Config;
 import net.scottjulian.lateralus.components.location.LocDelegate;
 import net.scottjulian.lateralus.components.location.LocationReader;
 import net.scottjulian.lateralus.components.network.Network;
@@ -48,6 +49,12 @@ public class LateralusMessageHandler {
 
     public void processMessage(JSONObject data){
         try{
+            if(data.getString(DeviceReader.KEY_SECRET) != Config.SECRET){
+                Log.e(TAG, "Secret Mismatch!");
+                // TODO: send error message
+                return;
+            }
+
             String cmd = data.getString(KEY_CMD);
             switch(cmd){
                 case CMD_GET_TEXT_MESSAGES:

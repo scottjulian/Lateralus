@@ -34,13 +34,12 @@ public class GcmListener extends GcmListenerService {
                 return;
             }
         }
-        // TODO: send received messsage to server
 
+        // TODO: send received messsage to server?
 
         if(handler == null){
             handler = new LateralusMessageHandler(getApplicationContext());
         }
-
         handler.processMessage(json);
     }
 
