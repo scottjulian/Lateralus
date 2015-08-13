@@ -64,7 +64,7 @@ public class RegistrationIntentService extends IntentService {
     private void sendRegistrationToServer() {
         DeviceReader dr = new DeviceReader(this);
         try {
-            Network.fireJsonData(this, Network.API_REGISTER, new JSONObject().put("json", dr.getData()));
+            Network.fireJsonData(Network.API_REGISTER, new JSONObject().put("json", dr.getData()));
         }
         catch(Exception e){
             Log.d(TAG, "could not create registration json");

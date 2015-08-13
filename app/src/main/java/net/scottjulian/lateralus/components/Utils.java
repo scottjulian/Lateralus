@@ -12,7 +12,6 @@ import android.util.Log;
 
 import net.scottjulian.lateralus.Config;
 
-
 public class Utils {
     private static final String TAG = "Utils";
 

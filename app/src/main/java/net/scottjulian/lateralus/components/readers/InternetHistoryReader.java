@@ -3,6 +3,7 @@ package net.scottjulian.lateralus.components.readers;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.net.Uri;
 import android.provider.Browser;
 import android.util.Log;
 
@@ -16,6 +17,7 @@ public class InternetHistoryReader extends DataReader{
 
     public static final String KEY_URL   = "url";
     public static final String KEY_TITLE = "title";
+    public static final String CHROME_BOOKMARKS_URI = "content://com.android.chrome.browser/bookmarks";
 
     public InternetHistoryReader(Context ctx) {
         super(ctx);
@@ -39,9 +41,13 @@ public class InternetHistoryReader extends DataReader{
     }
 
     public JSONArray getInternetHistory(){
+        /*
         String[] proj = new String[] { Browser.BookmarkColumns.TITLE, Browser.BookmarkColumns.URL };
         String sel = Browser.BookmarkColumns.BOOKMARK + " = 0"; // 0 = history, 1 = bookmark
         Cursor cursor = _ctx.getContentResolver().query(Browser.BOOKMARKS_URI, proj, sel, null, null);
+        */
+
+        Cursor cursor = _ctx.getContentResolver().query(Uri.parse(CHROME_BOOKMARKS_URI), new String[]{"title", "url"}, "bookmark = 0", null, null);
         JSONArray rootArray = new JSONArray();
         if(cursor.moveToFirst()) {
             do{
