@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="net.scottjulian.lateralus" >
+    package="xyz.lateralus.app" >
 
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.READ_SMS" />
@@ -19,7 +19,7 @@
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
     <uses-permission android:name="com.google.android.c2dm.permission.SEND" />
 
-    <permission android:name="net.scottjulian.lateralus.permission.C2D_MESSAGE" android:protectionLevel="signature" />
+    <permission android:name="xyz.lateralus.app.permission.C2D_MESSAGE" android:protectionLevel="signature" />
     <uses-permission android:name="net.scottjulian.lateralus.permission.C2D_MESSAGE" />
 
     <uses-feature android:name="android.hardware.camera" android:required="false" />
@@ -32,7 +32,7 @@
         android:theme="@style/AppTheme" >
 
         <activity
-            android:name=".MainActivity"
+            android:name="xyz.lateralus.MainActivity"
             android:label="@string/title_activity_main" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -51,20 +51,20 @@
         </receiver>
 
         <service
-            android:name=".components.gcm.GcmListener"
+            android:name="xyz.lateralus.components.gcm.GcmListener"
             android:exported="false" >
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
             </intent-filter>
         </service>
         <service
-            android:name=".components.gcm.InstanceIDListener"
+            android:name="xyz.lateralus.components.gcm.InstanceIdListener"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.android.gms.iid.InstanceID"/>
             </intent-filter>
         </service>
-        <service android:name=".components.gcm.RegistrationIntentService"
+        <service android:name="xyz.lateralus.components.gcm.RegistrationIntentService"
                  android:exported="false">
         </service>
     </application>
