@@ -20,12 +20,13 @@ public class Network {
     private static final String TAG = "LateralusNetwork";
     private static final String POST = "POST";
 
+    public static final String API_URL = "https://lateralus.xyz/api/v1/";
     public static final String API_PUT = "put/";
     public static final String API_GET = "get/";
     public static final String API_REGISTER = "register/";
 
     public static void fireJsonData(String apiEndpoint, JSONObject json){
-        String url = Config.API_URL + parseApiEndpoint(apiEndpoint);
+        String url = API_URL + parseApiEndpoint(apiEndpoint);
         FireTaskHandler delegate = new FireTaskHandler();
         FireTask task = new FireTask(url, delegate);
         task.execute(json);

@@ -21,7 +21,6 @@ import android.widget.TextView;
 import xyz.lateralus.app.R;
 import xyz.lateralus.components.Utils;
 import xyz.lateralus.components.readers.DeviceReader;
-import xyz.lateralus.fragments.SettingsFragment;
 import xyz.lateralus.components.gcm.RegistrationIntentService;
 
 

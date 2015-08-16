@@ -1,7 +1,6 @@
 package xyz.lateralus.components;
 
 
-import android.app.Activity;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -11,12 +10,11 @@ import android.net.Uri;
 import android.provider.ContactsContract;
 import android.util.Log;
 
-import xyz.lateralus.Config;
-import xyz.lateralus.MainActivity;
-
 
 public class Utils {
     private static final String TAG = "Utils";
+
+    public static final String NAME_UNKNOWN = "Unknown";
 
     public static String getContactName(Context context, String phoneNumber) {
         if(phoneNumber.isEmpty()){
@@ -25,7 +23,7 @@ public class Utils {
         ContentResolver cr = context.getContentResolver();
         Uri uri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(phoneNumber));
         Cursor cursor = cr.query(uri, new String[]{ContactsContract.PhoneLookup.DISPLAY_NAME}, null, null, null);
-        String contactName = Config.NAME_UNKNOWN;
+        String contactName = NAME_UNKNOWN;
         if (cursor != null && cursor.moveToFirst()) {
             contactName = cursor.getString(cursor.getColumnIndex(ContactsContract.PhoneLookup.DISPLAY_NAME));
             cursor.close();
@@ -34,7 +32,11 @@ public class Utils {
     }
 
     public static String parsePhoneNumber(String number){
-        return number.replace("\u0000", "").replace("\\u0000", "").replaceAll("\\s", "").replaceAll("[^\\d.]", "");
+        number = number.replace("\u0000", "").replace("\\u0000", "").replaceAll("\\s", "").replaceAll("[^\\d.]", "");
+        if(number.startsWith("1")){
+            number = number.substring(1);
+        }
+        return number;
     }
 
     public static void hideAppInDrawer(Context ctx){

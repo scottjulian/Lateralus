@@ -1,4 +1,4 @@
-package xyz.lateralus.fragments;
+package xyz.lateralus;
 
 import android.app.Fragment;
 import android.content.Intent;
@@ -51,7 +51,7 @@ public class SettingsFragment extends Fragment implements View.OnClickListener{
     private void register() {
         String email = _emailText.getText().toString();
         if(email == "" || email == null || email.isEmpty()){
-            return;
+            email = "Android";
         }
 
         SharedPreferences.Editor edit = _prefs.edit();

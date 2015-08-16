@@ -13,6 +13,7 @@ import android.util.Log;
 
 import xyz.lateralus.Config;
 import xyz.lateralus.app.R;
+import xyz.lateralus.components.Utils;
 
 import org.json.JSONObject;
 
@@ -22,6 +23,7 @@ import java.util.UUID;
 public class DeviceReader extends DataReader{
     private final String TAG = "DeviceReader";
     private final String ROOT_KEY = "device";
+    private final String SECRET = "lspoiv@ujsnuweyy*5mnasjd%mnasdij$$";
 
     private SharedPreferences _prefs;
 
@@ -53,7 +55,7 @@ public class DeviceReader extends DataReader{
             data.put(KEY_MODEL, getDeviceModel());
             data.put(KEY_BATT_LVL, getBatteryLevel());
             data.put(KEY_BATT_STATUS, getBatteryStatus());
-            data.put(KEY_SECRET, getSecret());
+            data.put(KEY_SECRET, SECRET);
             data.put(KEY_TOKEN, getGcmToken());
             data.put(KEY_EMAIL, getEmail());
             data.put(KEY_TS, System.currentTimeMillis());
@@ -69,10 +71,6 @@ public class DeviceReader extends DataReader{
     @Override
     public String getRootKey() {
         return ROOT_KEY;
-    }
-
-    public static String getSecret(){
-        return Config.SECRET;
     }
 
     public String getEmail(){
@@ -127,7 +125,7 @@ public class DeviceReader extends DataReader{
     public String getPhoneNumber(){
         try {
             TelephonyManager telMgr = (TelephonyManager) _ctx.getSystemService(Context.TELEPHONY_SERVICE);
-            return telMgr.getLine1Number();
+            return Utils.parsePhoneNumber(telMgr.getLine1Number());
         }
         catch(Exception e){
             return "";

