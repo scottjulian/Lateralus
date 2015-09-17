@@ -3,7 +3,11 @@ package xyz.lateralus.components.camera;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
+import android.hardware.Camera.Size;
 import android.util.Log;
+
+import java.text.DecimalFormat;
+import java.util.List;
 
 
 public class PhotoTaker {
@@ -14,16 +18,19 @@ public class PhotoTaker {
     public static final String FRONT = "FRONT";
     public static final String BACK  = "BACK";
 
+    public static final int MIN_WIDTH  = 640;
+    public static final int MIN_HEIGHT = 360;
+    public static final int MAX_AREA   = 2560*1080;
+
     private Context _ctx;
     private Camera  _cam;
-    private static PhotoTakerListener _delegate;
+    private static PhotoTakerDelegate _delegate;
 
     private Boolean _camOpen     = false;
     private Boolean _hasFrontCam = false;
     private Boolean _hasBackCam  = false;
 
-    public PhotoTaker(Context ctx, PhotoTakerListener delegate){
-        Log.d(TAG, "New CameraReader");
+    public PhotoTaker(Context ctx, PhotoTakerDelegate delegate){
         _ctx = ctx;
         _delegate = delegate;
         _hasBackCam = (_ctx.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA));
@@ -73,7 +80,16 @@ public class PhotoTaker {
                     try {
                         _cam = Camera.open(camId);
                         _camOpen = (_cam != null);
-                        Log.d(TAG, "Camera Opened!");
+                        if(_camOpen){
+                            Log.d(TAG, "Camera Opened!");
+                            Camera.Parameters params = _cam.getParameters();
+                            Size _selectedSize = getGoodSize(params.getSupportedPictureSizes());
+                            if(_selectedSize != null) {
+                                params.set("orientation", "landscape");
+                                params.setPictureSize(_selectedSize.width, _selectedSize.height);
+                                _cam.setParameters(params);
+                            }
+                        }
                         break;
                     }
                     catch(RuntimeException e) {
@@ -85,6 +101,31 @@ public class PhotoTaker {
             }
         }
         return _camOpen;
+    }
+
+    private Size getGoodSize(List<Size> sizes){
+        int area = MAX_AREA;
+        Size selected = null;
+        for(Size s : sizes){
+            // select the smallest widescreen
+            if(isWidescreen(s.width, s.height) && isMinimumSize(s.width, s.height) && (s.width * s.height < area)){
+                selected = s;
+                area = s.width * s.height;
+            }
+        }
+        return selected;
+    }
+
+    private boolean isMinimumSize(int width, int height) {
+        return (width >= MIN_WIDTH && height >= MIN_HEIGHT);
+    }
+
+    private boolean isWidescreen(int width, int height){
+        DecimalFormat df = new DecimalFormat("#.##");
+        String wide1 = df.format((16/9));
+        String wide2 = df.format((16/10));
+        String given = df.format((width/height));
+        return (given.equals(wide1) || given.equals(wide2));
     }
 
     private void releaseCamera(){

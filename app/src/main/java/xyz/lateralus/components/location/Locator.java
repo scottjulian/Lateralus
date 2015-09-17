@@ -14,7 +14,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 
-public class LocationReader {
+public class Locator {
     private static final String TAG = "LocationReader";
     private static final String ROOT_KEY = "location";
 
@@ -22,7 +22,7 @@ public class LocationReader {
     private static LocationManager _locManager;
     private static LocListener _listener;
     private static Location _currentBestLocation;
-    private static LocDelegate _delegate;
+    private static LocatorDelegate _delegate;
     private static Timer _timer;
 
     private static final int   MAX_DELTA_TIME    = 1000 * 60 * 2; // mins
@@ -30,7 +30,7 @@ public class LocationReader {
     private static final float MIN_UPDATE_METERS = 3.0f; // meters
     private static final long  TRACKING_TIME_LIMIT = 1000 * 60 * 5; // 5 minutes
 
-    public LocationReader(Context ctx, LocDelegate delegate){
+    public Locator(Context ctx, LocatorDelegate delegate){
         _ctx = ctx;
         _locManager = (LocationManager) ctx.getSystemService(Context.LOCATION_SERVICE);
         _listener = new LocListener();

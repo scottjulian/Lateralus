@@ -1,14 +1,31 @@
 <resources>
     <string name="app_name">Lateralus</string>
-    <string name="title_activity_main">Lateralus</string>
 
+    <string name="title_activity_main">Lateralus</string>
+    <string name="title_fragment_settings">Settings</string>
+    <string name="title_fragment_register">Register</string>
+    <string name="title_activity_sign_in">Sign In</string>
     <string name="action_settings">Settings</string>
+    <string name="action_sign_out">Sign Out</string>
+
+    <string name="url_lateralus">https://lateralus.xyz</string>
+    <string name="url_lateralus_privacy_policy">https://lateralus.xyz/privacy</string>
+    <string name="email_lateralus">lateralusxyz@gmail.com</string>
+
+    <!-- Pref Keys -->
+    <string name="preferences_file">xyz.lateralus.android.preferences</string>
     <string name="key_for_token">lateralus.gcm.token</string>
+    <string name="key_for_sent_token">lateralus.gcm.sent_token_to_server</string>
     <string name="key_for_email">lateralus.user.email</string>
-    <string name="key_for_device_id">lateralus.device.uuid</string>
-    <string name="text_main_title">Android\'s Lateralus</string>
-    <string name="text_dub_title">Data Protection and Device Security</string>
-    <string name="text_middle_message">Thanks for using Android\'s Lateralus</string>
-    <string name="text_secure_status_default">NOT SECURE</string>
-    <string name="text_status_label">current status:</string>
+    <string name="key_for_remember_email">lateralus.user.email.remember</string>
+    <string name="key_for_password">lateralus.user.pass</string>
+    <string name="key_for_user_type">lateralus.user.type</string>
+    <string name="key_for_user_id">lateralus.user.id</string>
+    <string name="key_for_last_sign_in">lateralus.user.last_sign_in</string>
+    <string name="key_for_device_row_id">lateralus.device.row_id</string>
+    <string name="key_for_device_uuid">lateralus.device.uuid</string>
+    <string name="key_for_wifi_only">lateralus.data.wifi_only</string>
+    <string name="key_for_user_created_timestamp">lateralus.user.created.timestamp</string>
+
+
 </resources>

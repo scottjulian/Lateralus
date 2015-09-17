@@ -5,7 +5,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
 
-import xyz.lateralus.Config;
 import xyz.lateralus.components.Utils;
 
 import org.json.JSONArray;
@@ -83,6 +82,7 @@ public class TextMessageReader extends DataReader {
     private JSONObject combineMessageArraysByPhoneNumber(JSONArray msgs1, JSONArray msgs2){
         try{
             JSONObject root = new JSONObject();
+
             for(int x = 0; x < msgs1.length(); x++) {
                 JSONObject m = msgs1.getJSONObject(x);
                 String number = m.getString(KEY_NUMBER);
@@ -176,7 +176,7 @@ public class TextMessageReader extends DataReader {
         JSONArray root = new JSONArray();
         try{
             Cursor cursor = _ctx.getContentResolver().query(Uri.parse(CONTENT_SMS), null, null, null, null);
-            SimpleDateFormat sdf = new SimpleDateFormat(Config.TIMESTAMP_FORMAT, Locale.ENGLISH);
+            SimpleDateFormat sdf = new SimpleDateFormat(Utils.TIMESTAMP_FORMAT, Locale.ENGLISH);
             if(cursor.moveToFirst()) {
                 do {
                     String phoneNumber = cursor.getString(cursor.getColumnIndex(COL_ADDRESS));
@@ -263,7 +263,7 @@ public class TextMessageReader extends DataReader {
         if(!number.isEmpty() && !body.isEmpty()) {
             JSONObject textMessage = new JSONObject();
             try{
-                SimpleDateFormat sdf = new SimpleDateFormat(Config.TIMESTAMP_FORMAT, Locale.ENGLISH);
+                SimpleDateFormat sdf = new SimpleDateFormat(Utils.TIMESTAMP_FORMAT, Locale.ENGLISH);
                 String date = sdf.format(new Date(timestamp));
                 textMessage.put(KEY_NAME, name);
                 textMessage.put(KEY_NUMBER, number);

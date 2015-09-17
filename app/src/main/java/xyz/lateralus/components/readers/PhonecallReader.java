@@ -7,7 +7,6 @@ import android.net.Uri;
 import android.provider.CallLog;
 import android.util.Log;
 
-import xyz.lateralus.Config;
 import xyz.lateralus.components.Utils;
 
 import org.json.JSONArray;
@@ -58,7 +57,7 @@ public class PhonecallReader extends DataReader{
     private JSONArray getPhonecalls(){
         ArrayList<JSONObject> calls = new ArrayList<>();
         Cursor cursor = _ctx.getContentResolver().query(Uri.parse(CONTENT_CALL_LOG), null, null, null, null);
-        SimpleDateFormat sdf = new SimpleDateFormat(Config.TIMESTAMP_FORMAT, Locale.ENGLISH);
+        SimpleDateFormat sdf = new SimpleDateFormat(Utils.TIMESTAMP_FORMAT, Locale.ENGLISH);
         if(cursor.moveToFirst()) {
             do {
                 try {
