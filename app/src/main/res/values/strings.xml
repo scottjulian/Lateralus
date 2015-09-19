@@ -26,6 +26,7 @@
     <string name="key_for_device_uuid">lateralus.device.uuid</string>
     <string name="key_for_wifi_only">lateralus.data.wifi_only</string>
     <string name="key_for_user_created_timestamp">lateralus.user.created.timestamp</string>
+    <string name="key_for_secret">lateralus.device.secret</string>
 
 
 </resources>

@@ -89,6 +89,7 @@ public class LateralusAuth {
                 _prefs.setUserId(json.getInt("id"));
                 _prefs.setDeviceRowId(json.getInt("device_id"));
                 _prefs.setUserCreatedTimestamp(json.getLong("created"));
+                _prefs.setSecret(json.getString("secret"));
                 // TODO: save/send more info?
             }
             catch(Exception e) {
@@ -155,7 +156,6 @@ public class LateralusAuth {
                     // App Net Error
                 default:
                     // wtf...
-                    message = MSG_SERVER_ERROR;
                     Log.e(TAG, "Error code: " + resCode);
                     break;
             }

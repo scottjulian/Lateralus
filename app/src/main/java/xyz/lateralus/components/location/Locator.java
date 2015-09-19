@@ -44,6 +44,8 @@ public class Locator {
     }
 
     private void sendError(String msg){
+        stopTrackingTimer();
+        detachLocListener();
         _delegate.onErrorReceived(msg);
     }
 
@@ -100,7 +102,7 @@ public class Locator {
             data.put("altitude", loc.getAltitude());
             data.put("provider", loc.getProvider());
             data.put("speed", loc.getSpeed());
-            return new JSONObject().put(ROOT_KEY, data);
+            return data;
         }
         catch(Exception e){
             Log.e(TAG, "Could not create json from location");
@@ -192,7 +194,8 @@ public class Locator {
             _locManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_UPDATE_TIME, MIN_UPDATE_METERS, _listener);
         }
         else{
-            sendError("Could not attach location listener. Selected provider is not available");
+            Log.e(TAG, "Could not attach location listener. Selected provider is not available");
+            sendError("Could not listen for location updates.");
         }
     }
 

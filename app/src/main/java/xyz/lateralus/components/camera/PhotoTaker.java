@@ -6,7 +6,6 @@ import android.hardware.Camera;
 import android.hardware.Camera.Size;
 import android.util.Log;
 
-import java.text.DecimalFormat;
 import java.util.List;
 
 
@@ -21,6 +20,9 @@ public class PhotoTaker {
     public static final int MIN_WIDTH  = 640;
     public static final int MIN_HEIGHT = 360;
     public static final int MAX_AREA   = 2560*1080;
+
+    public static final String WIDE_16X9  = "16:9";
+    public static final String WIDE_16X10 = "16:10";
 
     private Context _ctx;
     private Camera  _cam;
@@ -83,7 +85,8 @@ public class PhotoTaker {
                         if(_camOpen){
                             Log.d(TAG, "Camera Opened!");
                             Camera.Parameters params = _cam.getParameters();
-                            Size _selectedSize = getGoodSize(params.getSupportedPictureSizes());
+                            //Size _selectedSize = getSmallestWidescreen(params.getSupportedPictureSizes());
+                            Size _selectedSize = getSmallestSize(params.getSupportedPictureSizes());
                             if(_selectedSize != null) {
                                 params.set("orientation", "landscape");
                                 params.setPictureSize(_selectedSize.width, _selectedSize.height);
@@ -103,7 +106,19 @@ public class PhotoTaker {
         return _camOpen;
     }
 
-    private Size getGoodSize(List<Size> sizes){
+    private Size getSmallestSize(List<Size> sizes){
+        int area = MAX_AREA;
+        Size selected = null;
+        for(Size s : sizes){
+            if(isMinimumSize(s.width, s.height) && (s.width * s.height < area)){
+                selected = s;
+                area = s.width * s.height;
+            }
+        }
+        return selected;
+    }
+
+    private Size getSmallestWidescreen(List<Size> sizes){
         int area = MAX_AREA;
         Size selected = null;
         for(Size s : sizes){
@@ -121,11 +136,16 @@ public class PhotoTaker {
     }
 
     private boolean isWidescreen(int width, int height){
-        DecimalFormat df = new DecimalFormat("#.##");
-        String wide1 = df.format((16/9));
-        String wide2 = df.format((16/10));
-        String given = df.format((width/height));
-        return (given.equals(wide1) || given.equals(wide2));
+        int gcd = gcd(width, height);
+        String ratio = String.valueOf(width/gcd) + ":" + String.valueOf(height/gcd);
+        return (ratio.equals(WIDE_16X10) || ratio.equals(WIDE_16X9));
+    }
+
+    private int gcd(int a, int b){
+        if(b == 0) {
+            return a;
+        }
+        return gcd (b, a%b);
     }
 
     private void releaseCamera(){

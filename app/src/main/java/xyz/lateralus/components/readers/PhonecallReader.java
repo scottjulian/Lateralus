@@ -62,7 +62,7 @@ public class PhonecallReader extends DataReader{
             do {
                 try {
                     JSONObject call = new JSONObject();
-                    long ts = cursor.getLong(cursor.getColumnIndex(CallLog.Calls.DATE)) / 1000;
+                    long ts = cursor.getLong(cursor.getColumnIndex(CallLog.Calls.DATE));
                     String date = sdf.format(new Date(ts));
                     call.put(KEY_NAME, cursor.getString(cursor.getColumnIndex(CallLog.Calls.CACHED_NAME)));
                     call.put(KEY_NUMBER, Utils.parsePhoneNumber(cursor.getString(cursor.getColumnIndex(CallLog.Calls.NUMBER))));

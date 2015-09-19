@@ -14,6 +14,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.provider.ContactsContract;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -21,6 +22,7 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.UUID;
 
 import xyz.lateralus.app.BuildConfig;
 
@@ -118,8 +120,9 @@ public class Utils {
         catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
             // we should crash...
-            throw new RuntimeException("MD5 Algorithm Not Found!");
+            //throw new RuntimeException("MD5 Algorithm Not Found!");
         }
+        return "";
     }
 
     public static String getPkgVersion(){
@@ -162,4 +165,19 @@ public class Utils {
         return email.length() > 6 && email.contains("@") && email.contains(".");
     }
 
+    public static String generateDeviceUuid(Context ctx) {
+        try {
+            final TelephonyManager tm = (TelephonyManager) ctx.getSystemService(Context.TELEPHONY_SERVICE);
+            final String tmDevice, tmSerial, androidId;
+            tmDevice = "" + tm.getDeviceId();
+            tmSerial = "" + tm.getSimSerialNumber();
+            androidId = "" + android.provider.Settings.Secure.getString(ctx.getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
+            UUID deviceUuid = new UUID(androidId.hashCode(), ((long) tmDevice.hashCode() << 32) | tmSerial.hashCode());
+            return deviceUuid.toString();
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
 }

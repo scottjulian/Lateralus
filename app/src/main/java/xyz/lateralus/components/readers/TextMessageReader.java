@@ -181,7 +181,7 @@ public class TextMessageReader extends DataReader {
                 do {
                     String phoneNumber = cursor.getString(cursor.getColumnIndex(COL_ADDRESS));
                     Boolean sent = (cursor.getInt(cursor.getColumnIndex(COL_TYPE)) == 2);
-                    long ts = cursor.getLong(cursor.getColumnIndex(COL_DATE)) / 1000;
+                    long ts = cursor.getLong(cursor.getColumnIndex(COL_DATE));
                     String date = sdf.format(new Date(ts));
                     JSONObject textMsg = new JSONObject();
                     textMsg.put(KEY_NAME,  Utils.getContactName(_ctx, phoneNumber));
@@ -215,8 +215,7 @@ public class TextMessageReader extends DataReader {
             if(cursor.moveToFirst()) {
                 do {
                     String pid = cursor.getString(cursor.getColumnIndex(COL_ID));
-                    //long timestamp = cursor.getLong(cursor.getColumnIndex(COL_DATE)) * 1000; // wtf google
-                    long ts = cursor.getLong(cursor.getColumnIndex(COL_DATE)) / 1000;
+                    long ts = cursor.getLong(cursor.getColumnIndex(COL_DATE));
                     Boolean sent = (cursor.getString(cursor.getColumnIndex(COL_M_TYPE)).equals(M_TYPE_SENT));
                     JSONObject mms = extractMms(pid, ts, sent);
                     if(mms != null) {

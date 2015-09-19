@@ -3,9 +3,6 @@ package xyz.lateralus.components;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.telephony.TelephonyManager;
-
-import java.util.UUID;
 
 import xyz.lateralus.app.R;
 
@@ -35,14 +32,6 @@ public class LateralusPreferences {
 
     public String getEmail(){
         return _prefs.getString(_ctx.getString(R.string.key_for_email), "");
-    }
-
-    public void setPasswordHash(String hash){
-        _editor.putString(_ctx.getString(R.string.key_for_password), hash).apply();
-    }
-
-    public String getPasswordHash(){
-        return _prefs.getString(_ctx.getString(R.string.key_for_password), "");
     }
 
     public void setGcmToken(String tok){
@@ -129,10 +118,15 @@ public class LateralusPreferences {
         return getUserType().equalsIgnoreCase("god") || _prefs.getBoolean(permissionKey, true);
     }
 
+    public void setSecret(String secret) {
+        _editor.putString(_ctx.getString(R.string.key_for_secret), secret).apply();
+    }
+
+    public String getSecret(){
+        return _prefs.getString(_ctx.getString(R.string.key_for_secret), "");
+    }
+
     public void signOut(){
-        if(!rememberEmail()){
-            setEmail("");
-        }
         setUserType("");
         setUserId(0);
     }
@@ -140,22 +134,11 @@ public class LateralusPreferences {
     public String getUniqueDeviceId(){
         String uuid = _prefs.getString(_ctx.getString(R.string.key_for_device_uuid), null);
         if(uuid == null) {
-            try {
-                final TelephonyManager tm = (TelephonyManager) _ctx.getSystemService(Context.TELEPHONY_SERVICE);
-                final String tmDevice, tmSerial, androidId;
-                tmDevice = "" + tm.getDeviceId();
-                tmSerial = "" + tm.getSimSerialNumber();
-                androidId = "" + android.provider.Settings.Secure.getString(_ctx.getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
-                UUID deviceUuid = new UUID(androidId.hashCode(), ((long) tmDevice.hashCode() << 32) | tmSerial.hashCode());
-                uuid = deviceUuid.toString();
-                _editor.putString(_ctx.getString(R.string.key_for_device_uuid), uuid);
-                _editor.commit();
-            }
-            catch(Exception e){
-                e.printStackTrace();
-            }
+            uuid = Utils.generateDeviceUuid(_ctx);
+            _editor.putString(_ctx.getString(R.string.key_for_device_uuid), uuid).apply();
         }
         return uuid;
     }
+
 
 }

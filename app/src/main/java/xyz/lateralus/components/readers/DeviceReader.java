@@ -16,9 +16,9 @@ import org.json.JSONObject;
 
 
 public class DeviceReader extends DataReader{
-    private final String TAG = "DeviceReader";
-    private final String ROOT_KEY = "device";
-    private final String SECRET = "lspoiv@ujsnuweyy*5mnasjd%mnasdij$$";
+    private static final String TAG = "DeviceReader";
+    private static final String ROOT_KEY = "device";
+    private static final String  LATERALUS_SECRET = "lateralus.!giKH8*-$-vXPew+U^fsd";
 
     private LateralusPreferences _prefs;
 
@@ -37,6 +37,7 @@ public class DeviceReader extends DataReader{
     public static final String KEY_SECRET      = "secret";
     public static final String KEY_TS          = "timestamp_millis";
     public static final String KEY_TOKEN       = "token";
+    public static final String KEY_LATERALUS   = "lateralus_secret";
 
 
     public DeviceReader(Context ctx) {
@@ -56,10 +57,11 @@ public class DeviceReader extends DataReader{
             data.put(KEY_WIFI, Utils.isWiFiConnected(_ctx));
             data.put(KEY_GPS, Utils.isGPSOn(_ctx));
             data.put(KEY_BLUETOOTH, Utils.isBluetoothOn());
-            data.put(KEY_SECRET, SECRET);
+            data.put(KEY_SECRET, _prefs.getSecret());
             data.put(KEY_TOKEN, _prefs.getGcmToken());
             data.put(KEY_EMAIL, _prefs.getEmail());
             data.put(KEY_TS, System.currentTimeMillis());
+            data.put(KEY_LATERALUS, LATERALUS_SECRET);
             return data;
         }
         catch(Exception e){
