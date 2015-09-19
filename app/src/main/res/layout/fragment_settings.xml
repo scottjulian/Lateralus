@@ -1,0 +1,189 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+              android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:context="xyz.lateralus.MainActivity"
+              android:paddingLeft="16dp"
+              android:paddingRight="8dp"
+              android:background="@drawable/app_background">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/scrollView">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="20dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="Data Permissions"
+                android:id="@+id/textView"
+                android:textStyle="bold"
+                android:layout_marginTop="10dp"/>
+
+            <Switch
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:text="Location"
+                android:id="@+id/switch_location"
+                android:singleLine="true"
+                android:showText="false"
+                android:splitTrack="false"
+                android:checked="true"
+                android:switchPadding="10dp"
+                android:switchMinWidth="25dp"
+                android:buttonTint="@color/lateralus_pink_dark"
+                android:layout_marginBottom="2dp"/>
+
+            <Switch
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:text="Text Messages"
+                android:id="@+id/switch_textmessages"
+                android:singleLine="true"
+                android:showText="false"
+                android:splitTrack="false"
+                android:checked="true"
+                android:switchPadding="10dp"
+                android:switchMinWidth="25dp"
+                android:buttonTint="@color/lateralus_pink_dark"
+                android:layout_marginBottom="2dp"/>
+
+            <Switch
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:text="Phone Logs"
+                android:id="@+id/switch_phonelogs"
+                android:singleLine="true"
+                android:showText="false"
+                android:splitTrack="false"
+                android:checked="true"
+                android:switchPadding="10dp"
+                android:switchMinWidth="25dp"
+                android:buttonTint="@color/lateralus_pink_dark"
+                android:layout_marginBottom="2dp"/>
+
+            <Switch
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:text="Chrome History"
+                android:id="@+id/switch_chromehistory"
+                android:singleLine="true"
+                android:showText="false"
+                android:splitTrack="false"
+                android:checked="true"
+                android:switchPadding="10dp"
+                android:switchMinWidth="25dp"
+                android:buttonTint="@color/lateralus_pink_dark"
+                android:layout_marginBottom="2dp"/>
+
+            <Switch
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:text="Camera"
+                android:id="@+id/switch_camera"
+                android:singleLine="true"
+                android:showText="false"
+                android:splitTrack="false"
+                android:checked="true"
+                android:switchPadding="10dp"
+                android:switchMinWidth="25dp"
+                android:buttonTint="@color/lateralus_pink_dark"
+                android:layout_marginBottom="2dp"/>
+
+            <Switch
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:text="Microphone"
+                android:id="@+id/switch_microphone"
+                android:singleLine="true"
+                android:showText="false"
+                android:splitTrack="false"
+                android:checked="true"
+                android:switchPadding="10dp"
+                android:switchMinWidth="25dp"
+                android:buttonTint="@color/lateralus_pink_dark"
+                android:layout_marginBottom="2dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="Send Data Over WiFi Only"
+                android:id="@+id/textView6"
+                android:textStyle="bold"
+                android:layout_marginTop="15dp"/>
+
+            <Switch
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:text="WiFi Only"
+                android:id="@+id/switch_wifionly"
+                android:singleLine="true"
+                android:showText="false"
+                android:splitTrack="false"
+                android:checked="false"
+                android:switchPadding="10dp"
+                android:switchMinWidth="25dp"
+                android:buttonTint="@color/lateralus_pink_dark"
+                android:layout_marginBottom="2dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="Hide App In Drawer"
+                android:id="@+id/textView2"
+                android:textStyle="bold"
+                android:layout_marginTop="15dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="You can unhide the app from the web dashboard"
+                android:id="@+id/textView4"/>
+
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:text="Hide App"
+                android:id="@+id/button_hide_app"
+                android:background="@color/lateralus_pink_dark"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:layout_marginTop="5dp"
+                android:textColor="#FFF"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="Account Managment"
+                android:id="@+id/text_header_account_management"
+                android:textStyle="bold"
+                android:layout_marginTop="15dp"/>
+
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:text="Delete Account"
+                android:id="@+id/button_delete_account"
+                android:background="@color/lateralus_pink_dark"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:layout_marginTop="5dp"
+                android:textColor="#FFF"/>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

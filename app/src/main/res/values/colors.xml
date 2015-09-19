@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="lateralus_pink">#E55EA2</color>
+    <color name="lateralus_pink_dark">#C23E81</color>
+    <color name="lateralus_red">#ff1a1a</color>
+    <color name="lateralus_green">#3C971F</color>
+    <color name="lateralus_blue">#337ab7</color>
+    <color name="lateralus_gray_med">#888</color>
+</resources>

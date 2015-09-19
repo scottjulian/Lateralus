@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              tools:context="xyz.lateralus.SignInActivity"
+              android:padding="16dp"
+              android:background="@drawable/app_background">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="35dp"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Register for Lateralus"
+        android:id="@+id/text_view_register_title"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:gravity="center|center_vertical|center_horizontal"
+        android:textStyle="bold"
+        android:textColor="@color/lateralus_pink_dark"
+        />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:id="@+id/text_view_register_message"
+        android:layout_below="@+id/button_register_new_account"
+        android:layout_alignLeft="@+id/edit_text_register_verify_password"
+        android:layout_alignStart="@+id/edit_text_register_verify_password"
+        android:layout_alignRight="@+id/edit_text_register_verify_password"
+        android:layout_alignEnd="@+id/edit_text_register_verify_password"
+        android:gravity="center"
+        android:layout_marginBottom="5dp"
+        android:layout_marginTop="5dp"/>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textEmailAddress"
+        android:ems="10"
+        android:id="@+id/edit_text_register_email"
+        android:layout_below="@+id/text_view_register_title"
+        android:layout_alignLeft="@+id/text_view_register_title"
+        android:layout_alignStart="@+id/text_view_register_title"
+        android:layout_alignRight="@+id/text_view_register_title"
+        android:layout_alignEnd="@+id/text_view_register_title"
+        android:layout_marginBottom="1dp"
+        android:hint="email address"
+        android:singleLine="true"/>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textPassword"
+        android:ems="10"
+        android:id="@+id/edit_text_register_password"
+        android:layout_below="@+id/edit_text_register_email"
+        android:layout_alignLeft="@+id/edit_text_register_email"
+        android:layout_alignStart="@+id/edit_text_register_email"
+        android:layout_alignRight="@+id/edit_text_register_email"
+        android:layout_alignEnd="@+id/edit_text_register_email"
+        android:layout_marginBottom="1dp"
+        android:hint="password"
+        android:singleLine="true"/>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textPassword"
+        android:ems="10"
+        android:id="@+id/edit_text_register_verify_password"
+        android:layout_below="@+id/edit_text_register_password"
+        android:layout_alignLeft="@+id/edit_text_register_password"
+        android:layout_alignStart="@+id/edit_text_register_password"
+        android:layout_alignRight="@+id/edit_text_register_password"
+        android:layout_alignEnd="@+id/edit_text_register_password"
+        android:hint="verify password"
+        android:layout_marginBottom="1dp"
+        android:singleLine="true"/>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/edit_text_register_device_nickname"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="1dp"
+        android:hint="device nickname"
+        android:singleLine="true"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Register"
+        android:id="@+id/button_register_new_account"
+        android:layout_below="@+id/edit_text_register_verify_password"
+        android:layout_centerHorizontal="true"
+        android:background="@color/lateralus_pink"
+        android:paddingTop="7dp"
+        android:paddingBottom="7dp"
+        android:paddingLeft="15dp"
+        android:paddingRight="15dp"
+        android:textColor="#FFF"
+        android:layout_gravity="right"
+        android:layout_marginTop="5dp"/>
+
+</LinearLayout>
